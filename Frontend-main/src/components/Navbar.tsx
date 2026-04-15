@@ -2,16 +2,25 @@
 import { useDispatch, useSelector } from 'react-redux';
 import { Link, useNavigate } from 'react-router-dom';
 import { logout } from '../store/authSlice';
+import { authAPI } from '../api/auth';
 import type { RootState } from '../store';
 
 export default function Navbar() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const isLoggedIn = useSelector((state: RootState) => state.auth.isLoggedIn);
+  const auth = useSelector((state: RootState) => state.auth);
+  const isLoggedIn = auth.isLoggedIn;
+  const isAdmin = auth.user?.role === 'admin' || auth.user?.role === 'admine';
 
-  const handleLogout = () => {
-    dispatch(logout());
-    navigate('/');
+  const handleLogout = async () => {
+    try {
+      await authAPI.logout();
+    } catch (error) {
+      console.error('로그아웃 API 호출 실패:', error);
+    } finally {
+      dispatch(logout());
+      navigate('/');
+    }
   };
 
   return (
@@ -40,6 +49,14 @@ export default function Navbar() {
               </>
             ) : (
               <>
+                {isAdmin && (
+                  <Link
+                    to="/admin"
+                    className="bg-yellow-400 border-2 border-gray-900 shadow-[2px_2px_0_0_rgba(0,0,0,1)] px-4 py-2 font-bold hover:-translate-y-1 transition-transform"
+                  >
+                    관리자
+                  </Link>
+                )}
                 <Link
                   to="/mypage"
                   className="bg-white border-2 border-gray-900 shadow-[2px_2px_0_0_rgba(0,0,0,1)] px-4 py-2 font-bold hover:-translate-y-1 transition-transform"

@@ -13,6 +13,8 @@ import ReviewPage from './pages/ReviewPage';
 import NoticePage from './pages/NoticePage';
 import IncorrectNotePage from './pages/IncorrectNotePage';
 import BookmarkPage from './pages/BookmarkPage';
+import AdminPage from './pages/AdminPage';
+import AdminRoute from './components/AdminRoute';
 import FloatingNote from './components/FloatingNote';
 
 function App() {
@@ -28,6 +30,14 @@ function App() {
             <Route path="/progress" element={<Progress />} />
             <Route path="/community" element={<CommunityPage />} />
             <Route path="/mypage" element={<MyPage />} />
+            <Route
+              path="/admin"
+              element={
+                <AdminRoute>
+                  <AdminPage />
+                </AdminRoute>
+              }
+            />
             <Route path="/review" element={<ReviewPage />} />
             <Route path="/notice" element={<NoticePage />} />
             <Route path="/incorrect-note" element={<IncorrectNotePage />} />
