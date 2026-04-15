@@ -1,20 +1,28 @@
 // src/pages/LoginPage.tsx
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { loginSuccess } from '../store/authSlice';
 import { authAPI, userAPI } from '../api/auth';
 import { decodeJwtUuid } from '../utils/jwt';
+import type { RootState } from '../store';
 
 const LoginPage = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
+  const auth = useSelector((state: RootState) => state.auth);
 
   const [userId, setUserId] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+
+  useEffect(() => {
+    if (auth.isAuthReady && auth.isLoggedIn) {
+      navigate('/', { replace: true });
+    }
+  }, [auth.isAuthReady, auth.isLoggedIn, navigate]);
 
   const handleLogin = async () => {
     setErrorMsg('');

@@ -25,7 +25,7 @@ const initialState: AuthState = {
   user: null,
   accessToken: storedAccessToken,
   refreshToken: storedRefreshToken,
-  isLoggedIn: Boolean(storedAccessToken || storedRefreshToken),
+  isLoggedIn: Boolean(storedAccessToken),
   isAuthReady: false,
 };
 
