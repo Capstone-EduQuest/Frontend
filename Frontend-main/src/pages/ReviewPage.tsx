@@ -1,3 +1,5 @@
+import PageHeader from '../components/PageHeader';
+
 const ReviewPage = () => {
   const reviewStages = [
     { id: 1, title: '변수 할당', progress: '완료 100%', reward: '30 P' },
@@ -8,10 +10,10 @@ const ReviewPage = () => {
   return (
     <div className="min-h-screen bg-gray-50 p-10 font-sans">
       <div className="max-w-6xl mx-auto space-y-6">
-        <header className="rounded-3xl border-4 border-gray-900 bg-white p-8 shadow-[8px_8px_0_0_rgba(0,0,0,1)]">
-          <h1 className="text-4xl font-black text-gray-900">복습하기</h1>
-          <p className="mt-2 text-gray-600">지난 학습 내용을 다시 확인하고, 주요 개념을 빠르게 복습하세요.</p>
-        </header>
+        <PageHeader
+          title="복습하기"
+          subtitle="지난 학습 내용을 다시 확인하고, 주요 개념을 빠르게 복습하세요."
+        />
 
         <section className="grid gap-6 md:grid-cols-2">
           {reviewStages.map((stage) => (

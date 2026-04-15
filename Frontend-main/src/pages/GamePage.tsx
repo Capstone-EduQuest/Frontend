@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import axios from 'axios';
 import CodeProblem from '../components/CodeProblem';
+import BackButton from '../components/BackButton';
 import type { RootState } from '../store';
 
 interface Stage {
@@ -117,12 +118,9 @@ export default function GamePage() {
     return (
       <div className="min-h-screen bg-gray-900 flex flex-col font-sans">
         <header className="flex justify-between items-center px-10 py-4 bg-gray-800 shadow-md">
-          <button
-            onClick={() => setSelectedProblemId(null)}
-            className="text-gray-300 hover:text-white font-bold"
-          >
-            ← 스테이지로 돌아가기
-          </button>
+          <div>
+            <BackButton onClick={() => setSelectedProblemId(null)} ariaLabel="스테이지로 돌아가기" />
+          </div>
           <div className="text-2xl font-black text-blue-400">EduQuest - {selectedStage?.title}</div>
           <button
             onClick={() => navigate('/')}
@@ -143,16 +141,16 @@ export default function GamePage() {
   return (
     <div className="min-h-screen bg-gray-900 flex flex-col font-sans">
       <header className="flex justify-between items-center px-10 py-4 bg-gray-800 shadow-md">
-        <button onClick={() => navigate('/')} className="text-gray-300 hover:text-white font-bold">
-          ← 대시보드로 돌아가기
-        </button>
+        <div>
+          <BackButton to="/" ariaLabel="대시보드로 돌아가기" />
+        </div>
         <div className="text-2xl font-black text-blue-400">EduQuest 스테이지 선택</div>
         <div className="w-32"></div>
       </header>
 
       <main className="flex-1 p-8">
         <div className="max-w-6xl mx-auto">
-          <h1 className="text-3xl font-bold text-white mb-8 text-center">프로그래밍 모험을 시작하세요! 🚀</h1>
+<h1 className="text-3xl font-bold text-white mb-8 text-center">프로그래밍 모험을 시작하세요!</h1>
 
           {isLoading ? (
             <div className="text-center text-white">

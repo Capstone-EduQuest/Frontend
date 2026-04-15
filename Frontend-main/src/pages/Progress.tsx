@@ -29,9 +29,9 @@ const Progress = () => {
     <div className="min-h-screen bg-gray-50 p-10 font-sans flex flex-col items-center">
       <div className="w-full max-w-4xl flex items-center justify-between mb-10">
         <button onClick={() => navigate('/')} className="bg-white border p-2 px-6 rounded-full font-bold shadow-sm hover:bg-gray-100 transition-all">
-          ← 대시보드
+          ←
         </button>
-        <h1 className="text-3xl font-black text-gray-800">📍 파이썬 마스터 퀘스트</h1>
+        <h1 className="text-3xl font-black text-gray-800">파이썬 마스터 퀘스트</h1>
         <div className="w-32"></div>
       </div>
 

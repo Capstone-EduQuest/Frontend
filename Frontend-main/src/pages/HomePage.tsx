@@ -57,7 +57,7 @@ export default function HomePage() {
               to="/game"
               className="inline-block bg-[#e8472a] text-white px-12 py-6 text-3xl font-black border-4 border-gray-900 shadow-[6px_6px_0_0_rgba(0,0,0,1)] hover:-translate-y-2 transition-transform"
             >
-              게임시작 (Let's Go!)
+              게임 시작
             </Link>
           </div>
         </div>
@@ -68,7 +68,7 @@ export default function HomePage() {
         <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-8">
           {/* Notices Box */}
           <div className="bg-gray-900 border-4 border-gray-700 rounded-xl p-6 shadow-[8px_8px_0_0_rgba(0,0,0,0.3)]">
-            <h2 className="text-2xl font-black text-white mb-4">📢 공지사항</h2>
+            <h2 className="text-2xl font-black text-white mb-4">공지사항</h2>
             <div className="space-y-3">
               {recentNotices.map((notice) => (
                 <div key={notice.uuid} className="bg-gray-800 rounded-lg p-3">
@@ -87,7 +87,7 @@ export default function HomePage() {
 
           {/* Community Box */}
           <div className="bg-gray-900 border-4 border-gray-700 rounded-xl p-6 shadow-[8px_8px_0_0_rgba(0,0,0,0.3)]">
-            <h2 className="text-2xl font-black text-white mb-4">💬 커뮤니티</h2>
+            <h2 className="text-2xl font-black text-white mb-4">커뮤니티</h2>
             <div className="space-y-3">
               {recentPosts.map((post) => (
                 <div key={post.uuid} className="bg-gray-800 rounded-lg p-3">
@@ -106,7 +106,7 @@ export default function HomePage() {
 
           {/* Progress Box */}
           <div className="bg-gray-900 border-4 border-gray-700 rounded-xl p-6 shadow-[8px_8px_0_0_rgba(0,0,0,0.3)]">
-            <h2 className="text-2xl font-black text-white mb-4">📊 나의 학습현황</h2>
+            <h2 className="text-2xl font-black text-white mb-4">나의 학습현황</h2>
             {userProgress && (
               <div className="space-y-4">
                 <div className="text-center">
@@ -132,7 +132,7 @@ export default function HomePage() {
               to="/progress"
               className="inline-block mt-4 bg-[#e8472a] text-white px-4 py-2 font-bold border-2 border-gray-700 shadow-[3px_3px_0_0_rgba(0,0,0,1)] hover:-translate-y-1 transition-transform"
             >
-              나의 학습현황 더보기
+              더보기 +
             </Link>
           </div>
         </div>

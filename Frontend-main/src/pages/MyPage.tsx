@@ -1,20 +1,18 @@
-import { Link } from 'react-router-dom';
+import PageHeader from '../components/PageHeader';
 
 export default function MyPage() {
   return (
     <div className="min-h-screen bg-[#f5f3f0] py-10">
-      <div className="mx-auto max-w-5xl rounded-[36px] bg-white p-8 shadow-xl shadow-slate-200/50">
-        <div className="mb-8 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+      <PageHeader
+        title="나의 학습 기록"
+        subtitle="퀘스트 진행 상황과 맞춤 추천을 확인해보세요."
+      />
+      <div className="mx-auto mt-6 max-w-5xl rounded-[36px] bg-white p-8 shadow-xl shadow-slate-200/50">
+        <div className="mb-8">
           <div>
             <p className="text-sm font-semibold uppercase tracking-[0.24em] text-[#e8472a]">마이페이지</p>
-            <h1 className="mt-3 text-3xl font-black text-slate-900 sm:text-4xl">나의 학습 기록</h1>
+            <h2 className="mt-3 text-3xl font-black text-slate-900 sm:text-4xl">내 학습 현황</h2>
           </div>
-          <Link
-            to="/"
-            className="inline-flex items-center justify-center rounded-full bg-[#e8472a] px-5 py-3 text-sm font-semibold text-white shadow-lg shadow-[#e8472a]/15 transition hover:bg-[#d13d1f]"
-          >
-            홈으로 돌아가기
-          </Link>
         </div>
 
         <div className="grid gap-6 lg:grid-cols-2">

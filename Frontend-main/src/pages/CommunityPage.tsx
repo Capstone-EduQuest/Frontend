@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import axios from 'axios';
 import type { RootState } from '../store';
+import BackButton from '../components/BackButton';
 
 interface Question {
   uuid: string;
@@ -157,12 +158,9 @@ export default function CommunityPage() {
     return (
       <div className="min-h-screen bg-gray-50 font-sans">
         <header className="flex justify-between items-center px-10 py-6 bg-white shadow-sm">
-          <button
-            onClick={() => setSelectedQuestion(null)}
-            className="text-gray-600 hover:text-blue-500 font-bold"
-          >
-            ← 질문 목록으로 돌아가기
-          </button>
+          <div>
+            <BackButton onClick={() => setSelectedQuestion(null)} ariaLabel="질문 목록으로 돌아가기" />
+          </div>
           <div className="text-2xl font-black text-blue-600">EduQuest 커뮤니티</div>
           <button
             onClick={() => navigate('/')}
@@ -224,9 +222,9 @@ export default function CommunityPage() {
   return (
     <div className="min-h-screen bg-gray-50 font-sans">
       <header className="flex justify-between items-center px-10 py-6 bg-white shadow-sm">
-        <button onClick={() => navigate('/')} className="text-gray-600 hover:text-blue-500 font-bold">
-          ← 대시보드로 돌아가기
-        </button>
+        <div>
+          <BackButton to="/" ariaLabel="대시보드로 돌아가기" />
+        </div>
         <div className="text-2xl font-black text-blue-600">EduQuest 커뮤니티</div>
         <button
           onClick={() => setShowQuestionForm(!showQuestionForm)}

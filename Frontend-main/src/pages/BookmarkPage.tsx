@@ -1,3 +1,5 @@
+import PageHeader from '../components/PageHeader';
+
 const BookmarkPage = () => {
   const bookmarks = [
     { id: 1, title: '파이썬 리스트 컴프리헨션', category: '개념 정리' },
@@ -9,10 +11,10 @@ const BookmarkPage = () => {
   return (
     <div className="min-h-screen bg-gray-50 p-10 font-sans">
       <div className="max-w-6xl mx-auto space-y-6">
-        <header className="rounded-3xl border-4 border-gray-900 bg-white p-8 shadow-[8px_8px_0_0_rgba(0,0,0,1)]">
-          <h1 className="text-4xl font-black text-gray-900">북마크</h1>
-          <p className="mt-2 text-gray-600">중요한 개념과 게시물을 한 곳에 모아두고 빠르게 다시 열람하세요.</p>
-        </header>
+        <PageHeader
+          title="북마크"
+          subtitle="중요한 개념과 게시물을 한 곳에 모아두고 빠르게 다시 열람하세요."
+        />
 
         <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {bookmarks.map((item) => (

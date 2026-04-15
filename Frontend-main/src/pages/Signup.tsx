@@ -69,7 +69,7 @@ const Signup = () => {
       payload.append('profile', new Blob([JSON.stringify(profileData)], { type: 'application/json' }));
 
       if (profileImage) {
-        payload.append('image', profileImage);
+        payload.append('profileImage', profileImage);
       }
 
       await authAPI.signUp(payload);
