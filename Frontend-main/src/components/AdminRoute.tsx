@@ -11,6 +11,10 @@ const AdminRoute = ({ children }: AdminRouteProps) => {
   const auth = useSelector((state: RootState) => state.auth);
   const isAdmin = auth.isLoggedIn && (auth.user?.role === 'admin' || auth.user?.role === 'admine');
 
+  if (!auth.isAuthReady) {
+    return null;
+  }
+
   if (!auth.isLoggedIn) {
     return <Navigate to="/login" replace />;
   }

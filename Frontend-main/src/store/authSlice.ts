@@ -15,13 +15,18 @@ interface AuthState {
   accessToken: string | null;
   refreshToken: string | null;
   isLoggedIn: boolean;
+  isAuthReady: boolean;
 }
+
+const storedAccessToken = typeof window !== 'undefined' ? localStorage.getItem('accessToken') : null;
+const storedRefreshToken = typeof window !== 'undefined' ? localStorage.getItem('refreshToken') : null;
 
 const initialState: AuthState = {
   user: null,
-  accessToken: null,
-  refreshToken: null,
-  isLoggedIn: false,
+  accessToken: storedAccessToken,
+  refreshToken: storedRefreshToken,
+  isLoggedIn: Boolean(storedAccessToken || storedRefreshToken),
+  isAuthReady: false,
 };
 
 const authSlice = createSlice({
@@ -36,8 +41,9 @@ const authSlice = createSlice({
     }>) => {
       state.user = action.payload.user;
       state.accessToken = action.payload.accessToken;
-      state.refreshToken = action.payload.refreshToken || null;
+      state.refreshToken = action.payload.refreshToken || state.refreshToken;
       state.isLoggedIn = true;
+      state.isAuthReady = true;
 
       // localStorage에 토큰 저장
       localStorage.setItem('accessToken', action.payload.accessToken);
@@ -51,6 +57,7 @@ const authSlice = createSlice({
       state.accessToken = null;
       state.refreshToken = null;
       state.isLoggedIn = false;
+      state.isAuthReady = true;
 
       // localStorage에서 토큰 제거
       localStorage.removeItem('accessToken');

@@ -1,7 +1,11 @@
 // src/App.tsx
+import { useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import { Provider } from 'react-redux';
+import { Provider, useDispatch } from 'react-redux';
 import { store } from './store';
+import { loginSuccess, logout } from './store/authSlice';
+import { authAPI, userAPI } from './api/auth';
+import { decodeJwtUuid } from './utils/jwt';
 import HomePage from './pages/HomePage';
 import LoginPage from './pages/LoginPage';
 import Signup from './pages/Signup';
@@ -17,11 +21,78 @@ import AdminPage from './pages/AdminPage';
 import AdminRoute from './components/AdminRoute';
 import FloatingNote from './components/FloatingNote';
 
-function App() {
+function AppInner() {
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    const restoreLogin = async () => {
+      let token = localStorage.getItem('accessToken');
+
+      const refreshAccessToken = async () => {
+        try {
+          const refreshResponse = await authAPI.refresh();
+          token = refreshResponse.accessToken;
+          localStorage.setItem('accessToken', token);
+          if (refreshResponse.refreshToken) {
+            localStorage.setItem('refreshToken', refreshResponse.refreshToken);
+          }
+          return true;
+        } catch (refreshError) {
+          console.error('refresh 토큰으로 로그인 복원 실패:', refreshError);
+          return false;
+        }
+      };
+
+      if (!token) {
+        const refreshed = await refreshAccessToken();
+        if (!refreshed) {
+          dispatch(logout());
+          return;
+        }
+      }
+
+      let uuid = decodeJwtUuid(token ?? '');
+      if (!uuid) {
+        const refreshed = await refreshAccessToken();
+        if (!refreshed) {
+          dispatch(logout());
+          return;
+        }
+        uuid = decodeJwtUuid(token ?? '');
+        if (!uuid) {
+          dispatch(logout());
+          return;
+        }
+      }
+
+      try {
+        const profile = await userAPI.getProfile(uuid);
+        dispatch(
+          loginSuccess({
+            user: {
+              uuid: profile.uuid,
+              user_id: profile.user_id,
+              nickname: profile.nickname,
+              birth: profile.birth,
+              role: profile.role,
+              is_locked: profile.is_locked,
+              balance: profile.wallet?.balance ?? 0,
+            },
+            accessToken: token ?? '',
+          })
+        );
+      } catch (error) {
+        console.error('자동 로그인 복원 실패:', error);
+        dispatch(logout());
+      }
+    };
+
+    restoreLogin();
+  }, [dispatch]);
+
   return (
-    <Provider store={store}>
-      <Router>
-        <div className="min-h-screen bg-gray-50">
+    <Router>
+      <div className="min-h-screen bg-gray-50">
           <Routes>
             <Route path="/" element={<HomePage />} />
             <Route path="/login" element={<LoginPage />} />
@@ -46,6 +117,13 @@ function App() {
           <FloatingNote />
         </div>
       </Router>
+  );
+}
+
+function App() {
+  return (
+    <Provider store={store}>
+      <AppInner />
     </Provider>
   );
 }

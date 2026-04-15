@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
 import { loginSuccess } from '../store/authSlice';
 import { authAPI, userAPI } from '../api/auth';
+import { decodeJwtUuid } from '../utils/jwt';
 
 const LoginPage = () => {
   const navigate = useNavigate();
@@ -14,23 +15,6 @@ const LoginPage = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-
-  const decodeJwtUuid = (token: string): string | null => {
-    try {
-      const payload = token.split('.')[1];
-      const base64 = payload.replace(/-/g, '+').replace(/_/g, '/');
-      const decodedPayload = decodeURIComponent(
-        atob(base64)
-          .split('')
-          .map((c) => `%${('00' + c.charCodeAt(0).toString(16)).slice(-2)}`)
-          .join('')
-      );
-      const data = JSON.parse(decodedPayload);
-      return data.uuid || null;
-    } catch {
-      return null;
-    }
-  };
 
   const handleLogin = async () => {
     setErrorMsg('');

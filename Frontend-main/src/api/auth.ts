@@ -8,6 +8,7 @@ export interface LoginRequest {
 
 export interface LoginResponse {
   accessToken: string;
+  refreshToken?: string;
 }
 
 export interface UserProfile {
@@ -19,6 +20,10 @@ export interface UserProfile {
   created_at: string;
   updated_at?: string;
   role: string;
+  profile_image_url?: string;
+  profile_image?: string;
+  profile_url?: string;
+  avatar_url?: string;
   wallet?: {
     uuid: string;
     balance: number;
