@@ -15,11 +15,17 @@ const Signup = () => {
     birth: '',
     nickname: ''
   });
+  const [profileImage, setProfileImage] = useState<File | null>(null);
 
   const [errorMsg, setErrorMsg] = useState('');
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
+    setErrorMsg('');
+  };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setProfileImage(e.target.files?.[0] ?? null);
     setErrorMsg('');
   };
 
@@ -61,6 +67,10 @@ const Signup = () => {
 
       const payload = new FormData();
       payload.append('profile', new Blob([JSON.stringify(profileData)], { type: 'application/json' }));
+
+      if (profileImage) {
+        payload.append('image', profileImage);
+      }
 
       await authAPI.signUp(payload);
 
@@ -128,6 +138,16 @@ const Signup = () => {
               onChange={handleChange}
               placeholder="3자 이상의 닉네임"
               className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+            />
+          </div>
+
+          <div>
+            <label className="block text-slate-700 text-sm font-medium mb-2">프로필 이미지</label>
+            <input
+              type="file"
+              accept="image/*"
+              onChange={handleFileChange}
+              className="w-full text-slate-700 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-slate-100 file:text-slate-700 hover:file:bg-slate-200"
             />
           </div>
 

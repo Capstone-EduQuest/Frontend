@@ -48,8 +48,12 @@ const LoginPage = () => {
       const userUuid = decodeJwtUuid(accessToken);
 
       if (!userUuid) {
+        localStorage.removeItem('accessToken');
         throw new Error('유효하지 않은 토큰입니다.');
       }
+
+      // 프로필 조회 전에 헤더에 토큰을 추가하도록 먼저 저장합니다.
+      localStorage.setItem('accessToken', accessToken);
 
       const profile = await userAPI.getProfile(userUuid);
       const userData = {
@@ -67,6 +71,7 @@ const LoginPage = () => {
       navigate('/');
     } catch (error: any) {
       console.error('로그인 에러:', error);
+      localStorage.removeItem('accessToken');
       if (error.response?.status === 400) {
         setErrorMsg('아이디 또는 비밀번호가 일치하지 않습니다! 😢');
       } else if (error.response?.status === 401) {
