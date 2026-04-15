@@ -1,6 +1,6 @@
 // src/App.tsx
 import { useEffect } from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
 import { Provider, useDispatch } from 'react-redux';
 import { store } from './store';
 import { loginSuccess, logout } from './store/authSlice';
@@ -21,14 +21,20 @@ import AdminPage from './pages/AdminPage';
 import AdminRoute from './components/AdminRoute';
 import FloatingNote from './components/FloatingNote';
 
-function AppInner() {
+function AuthLoader() {
   const dispatch = useDispatch();
+  const location = useLocation();
 
   useEffect(() => {
     const restoreLogin = async () => {
       let token = localStorage.getItem('accessToken');
+      const refreshToken = localStorage.getItem('refreshToken');
 
       const refreshAccessToken = async () => {
+        if (!refreshToken) {
+          return false;
+        }
+
         try {
           const refreshResponse = await authAPI.refresh();
           token = refreshResponse.accessToken;
@@ -44,6 +50,11 @@ function AppInner() {
       };
 
       if (!token) {
+        if (!refreshToken || location.pathname === '/login') {
+          dispatch(logout());
+          return;
+        }
+
         const refreshed = await refreshAccessToken();
         if (!refreshed) {
           dispatch(logout());
@@ -53,11 +64,17 @@ function AppInner() {
 
       let uuid = decodeJwtUuid(token ?? '');
       if (!uuid) {
+        if (!refreshToken || location.pathname === '/login') {
+          dispatch(logout());
+          return;
+        }
+
         const refreshed = await refreshAccessToken();
         if (!refreshed) {
           dispatch(logout());
           return;
         }
+
         uuid = decodeJwtUuid(token ?? '');
         if (!uuid) {
           dispatch(logout());
@@ -88,10 +105,15 @@ function AppInner() {
     };
 
     restoreLogin();
-  }, [dispatch]);
+  }, [dispatch, location.pathname]);
 
+  return null;
+}
+
+function AppInner() {
   return (
     <Router>
+      <AuthLoader />
       <div className="min-h-screen bg-gray-50">
           <Routes>
             <Route path="/" element={<HomePage />} />
