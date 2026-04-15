@@ -41,6 +41,19 @@ const FloatingNote = () => {
     setNotes((prev) => prev.map((note) => (note.id === id ? { ...note, ...updatedFields, updatedAt: new Date().toISOString() } : note)));
   };
 
+  const handleDeleteNote = (id: string) => {
+    setNotes((prev) => {
+      const nextNotes = prev.filter((note) => note.id !== id);
+      setSelectedNoteId((prevSelected) => {
+        if (prevSelected === id) {
+          return nextNotes[0]?.id ?? '';
+        }
+        return prevSelected;
+      });
+      return nextNotes;
+    });
+  };
+
   return (
     <div className="fixed bottom-6 right-6 z-50 flex flex-col items-end gap-3">
       {isOpen && (
@@ -77,6 +90,15 @@ const FloatingNote = () => {
             >
               +
             </button>
+            {activeNote && (
+              <button
+                type="button"
+                onClick={() => handleDeleteNote(activeNote.id)}
+                className="shrink-0 rounded-2xl border border-red-500 bg-red-50 px-3 py-2 text-sm font-black text-red-700 hover:bg-red-100 transition-colors"
+              >
+                삭제
+              </button>
+            )}
           </div>
 
           {activeNote ? (

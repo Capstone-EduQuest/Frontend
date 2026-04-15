@@ -24,6 +24,8 @@ const IncorrectNotePage = () => {
         <PageHeader
           title="오답노트"
           subtitle="틀렸던 문제와 올바른 해법, 그리고 왜 틀렸는지를 한눈에 확인하세요."
+          backLink="/"
+          backLabel="대시보드로 돌아가기"
         />
 
         <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">

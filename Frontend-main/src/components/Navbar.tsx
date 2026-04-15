@@ -1,9 +1,18 @@
 ﻿// src/components/Navbar.tsx
-import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { useDispatch, useSelector } from 'react-redux';
+import { Link, useNavigate } from 'react-router-dom';
+import { logout } from '../store/authSlice';
+import type { RootState } from '../store';
 
 export default function Navbar() {
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const isLoggedIn = useSelector((state: RootState) => state.auth.isLoggedIn);
+
+  const handleLogout = () => {
+    dispatch(logout());
+    navigate('/');
+  };
 
   return (
     <nav className="sticky top-0 z-50 w-full bg-[#f5f3f0] border-b-4 border-gray-900">
@@ -31,24 +40,21 @@ export default function Navbar() {
               </>
             ) : (
               <>
-                <span className="bg-yellow-400 border-2 border-gray-900 shadow-[2px_2px_0_0_rgba(0,0,0,1)] px-3 py-1.5 font-black text-sm mr-2">
-                  🪙 1,520 P
-                </span>
-                <button className="bg-white border-2 border-gray-900 shadow-[2px_2px_0_0_rgba(0,0,0,1)] px-3 py-2 font-bold hover:bg-gray-100">
-                  👤 내 정보
-                </button>
-                <button className="bg-gray-300 border-2 border-gray-900 shadow-[2px_2px_0_0_rgba(0,0,0,1)] px-3 py-2 font-bold text-gray-800 hover:bg-gray-400">
+                <Link
+                  to="/mypage"
+                  className="bg-white border-2 border-gray-900 shadow-[2px_2px_0_0_rgba(0,0,0,1)] px-4 py-2 font-bold hover:-translate-y-1 transition-transform"
+                >
+                  마이페이지
+                </Link>
+                <button
+                  type="button"
+                  onClick={handleLogout}
+                  className="bg-gray-300 border-2 border-gray-900 shadow-[2px_2px_0_0_rgba(0,0,0,1)] px-4 py-2 font-bold text-gray-800 hover:bg-gray-400 hover:-translate-y-1 transition-transform"
+                >
                   로그아웃
                 </button>
               </>
             )}
-
-            <button
-              onClick={() => setIsLoggedIn((prev) => !prev)}
-              className="ml-4 rounded-full border border-gray-900 bg-slate-100 px-3 py-2 text-xs font-semibold uppercase tracking-[0.2em]"
-            >
-              토글
-            </button>
           </div>
         </div>
 

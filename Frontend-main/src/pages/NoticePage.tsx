@@ -28,6 +28,8 @@ const NoticePage = () => {
         <PageHeader
           title="공지사항"
           subtitle="EduQuest의 최신 소식과 업데이트 내용을 확인하세요."
+          backLink="/"
+          backLabel="대시보드로 돌아가기"
         />
 
         <section className="bg-white border-4 border-gray-900 shadow-[6px_6px_0_0_rgba(0,0,0,1)] rounded-xl overflow-hidden">

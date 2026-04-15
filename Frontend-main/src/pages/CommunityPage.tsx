@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import axios from 'axios';
 import type { RootState } from '../store';
-import BackButton from '../components/BackButton';
+import PageHeader from '../components/PageHeader';
 
 interface Question {
   uuid: string;
@@ -157,18 +157,19 @@ export default function CommunityPage() {
   if (selectedQuestion) {
     return (
       <div className="min-h-screen bg-gray-50 font-sans">
-        <header className="flex justify-between items-center px-10 py-6 bg-white shadow-sm">
-          <div>
-            <BackButton onClick={() => setSelectedQuestion(null)} ariaLabel="질문 목록으로 돌아가기" />
-          </div>
-          <div className="text-2xl font-black text-blue-600">EduQuest 커뮤니티</div>
-          <button
-            onClick={() => navigate('/')}
-            className="text-gray-600 hover:text-blue-500 font-bold"
-          >
-            홈으로
-          </button>
-        </header>
+        <PageHeader
+          title="EduQuest 커뮤니티"
+          backAction={() => setSelectedQuestion(null)}
+          backLabel="질문 목록으로 돌아가기"
+          rightAction={
+            <button
+              onClick={() => navigate('/')}
+              className="text-gray-600 hover:text-blue-500 font-bold"
+            >
+              홈으로
+            </button>
+          }
+        />
 
         <main className="max-w-4xl mx-auto p-8">
           {/* 질문 상세 */}
@@ -202,13 +203,13 @@ export default function CommunityPage() {
               value={newAnswerContent}
               onChange={(e) => setNewAnswerContent(e.target.value)}
               placeholder="답변을 작성해주세요..."
-              className="w-full h-32 p-4 border border-gray-300 rounded-lg resize-none focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full h-32 p-4 border border-gray-300 rounded-lg resize-none focus:outline-none focus:ring-2 focus:ring-[#e8472a]"
             />
             <div className="flex justify-end mt-4">
               <button
                 onClick={handleCreateAnswer}
                 disabled={isLoading || !newAnswerContent.trim()}
-                className="bg-blue-600 hover:bg-blue-500 disabled:bg-gray-400 text-white px-6 py-2 rounded-lg font-bold transition-colors"
+                className="bg-[#e8472a] hover:bg-[#d13d1f] disabled:bg-gray-400 text-white px-6 py-2 rounded-lg font-bold transition-colors"
               >
                 {isLoading ? '등록 중...' : '답변 등록'}
               </button>
@@ -221,18 +222,18 @@ export default function CommunityPage() {
 
   return (
     <div className="min-h-screen bg-gray-50 font-sans">
-      <header className="flex justify-between items-center px-10 py-6 bg-white shadow-sm">
-        <div>
-          <BackButton to="/" ariaLabel="대시보드로 돌아가기" />
-        </div>
-        <div className="text-2xl font-black text-blue-600">EduQuest 커뮤니티</div>
-        <button
-          onClick={() => setShowQuestionForm(!showQuestionForm)}
-          className="bg-blue-600 hover:bg-blue-500 text-white px-4 py-2 rounded-lg font-bold transition-colors"
-        >
-          질문 작성
-        </button>
-      </header>
+      <PageHeader
+        title="EduQuest 커뮤니티"
+        backLink="/"
+        rightAction={
+          <button
+            onClick={() => setShowQuestionForm(!showQuestionForm)}
+            className="bg-[#e8472a] hover:bg-[#d13d1f] text-white px-4 py-2 rounded-lg font-bold transition-colors"
+          >
+            질문 작성
+          </button>
+        }
+      />
 
       <main className="max-w-4xl mx-auto p-8">
         {/* 질문 작성 폼 */}
@@ -245,13 +246,13 @@ export default function CommunityPage() {
                 value={newQuestionTitle}
                 onChange={(e) => setNewQuestionTitle(e.target.value)}
                 placeholder="질문 제목을 입력하세요"
-                className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#e8472a]"
               />
               <textarea
                 value={newQuestionContent}
                 onChange={(e) => setNewQuestionContent(e.target.value)}
                 placeholder="질문 내용을 자세히 작성해주세요..."
-                className="w-full h-40 p-3 border border-gray-300 rounded-lg resize-none focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full h-40 p-3 border border-gray-300 rounded-lg resize-none focus:outline-none focus:ring-2 focus:ring-[#e8472a]"
               />
               <div className="flex justify-end gap-4">
                 <button
@@ -263,7 +264,7 @@ export default function CommunityPage() {
                 <button
                   onClick={handleCreateQuestion}
                   disabled={isLoading}
-                  className="bg-blue-600 hover:bg-blue-500 disabled:bg-gray-400 text-white px-6 py-2 rounded-lg font-bold transition-colors"
+                  className="bg-[#e8472a] hover:bg-[#d13d1f] disabled:bg-gray-400 text-white px-6 py-2 rounded-lg font-bold transition-colors"
                 >
                   {isLoading ? '등록 중...' : '질문 등록'}
                 </button>

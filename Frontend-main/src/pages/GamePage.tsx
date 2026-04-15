@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import axios from 'axios';
 import CodeProblem from '../components/CodeProblem';
-import BackButton from '../components/BackButton';
+import PageHeader from '../components/PageHeader';
 import type { RootState } from '../store';
 
 interface Stage {
@@ -117,18 +117,19 @@ export default function GamePage() {
   if (selectedProblemId) {
     return (
       <div className="min-h-screen bg-gray-900 flex flex-col font-sans">
-        <header className="flex justify-between items-center px-10 py-4 bg-gray-800 shadow-md">
-          <div>
-            <BackButton onClick={() => setSelectedProblemId(null)} ariaLabel="스테이지로 돌아가기" />
-          </div>
-          <div className="text-2xl font-black text-blue-400">EduQuest - {selectedStage?.title}</div>
-          <button
-            onClick={() => navigate('/')}
-            className="text-gray-300 hover:text-white font-bold"
-          >
-            홈으로
-          </button>
-        </header>
+        <PageHeader
+          title={`EduQuest - ${selectedStage?.title}`}
+          backAction={() => setSelectedProblemId(null)}
+          backLabel="스테이지로 돌아가기"
+          rightAction={
+            <button
+              onClick={() => navigate('/')}
+              className="text-gray-300 hover:text-white font-bold"
+            >
+              홈으로
+            </button>
+          }
+        />
         <main className="flex-1 flex justify-center items-center p-4">
           <div className="w-full max-w-5xl">
             <CodeProblem problemId={selectedProblemId} />
@@ -140,13 +141,10 @@ export default function GamePage() {
 
   return (
     <div className="min-h-screen bg-gray-900 flex flex-col font-sans">
-      <header className="flex justify-between items-center px-10 py-4 bg-gray-800 shadow-md">
-        <div>
-          <BackButton to="/" ariaLabel="대시보드로 돌아가기" />
-        </div>
-        <div className="text-2xl font-black text-blue-400">EduQuest 스테이지 선택</div>
-        <div className="w-32"></div>
-      </header>
+      <PageHeader
+        title="EduQuest 스테이지 선택"
+        backLink="/"
+      />
 
       <main className="flex-1 p-8">
         <div className="max-w-6xl mx-auto">
