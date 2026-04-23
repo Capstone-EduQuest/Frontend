@@ -82,7 +82,7 @@ export const authMock = {
     };
   },
 
-  signUp: async (_data: { user_id: string; password: string; birth: string; nickname: string }): Promise<void> => {
+  signUp: async (): Promise<void> => {
     await delay(400);
     return;
   },
@@ -136,7 +136,7 @@ export const homeApi = {
 };
 
 export const progressApi = {
-  fetchProgressStages: async (_userUuid: string): Promise<ProgressStage[]> => {
+  fetchProgressStages: async (): Promise<ProgressStage[]> => {
     await delay(400);
     return [];
   },
@@ -150,21 +150,18 @@ import type {
   IncorrectNote,
   Bookmark,
   StageProgress,
-  RegisterRequest,
-  LoginRequest as NewLoginRequest,
   LoginResponse as NewLoginResponse,
   NoteRequest,
   Note,
-  StageClearRequest,
 } from '../types/database';
 
 // New API exports
 export const authApi = {
-  register: async (_data: RegisterRequest): Promise<void> => {
+  register: async (): Promise<void> => {
     await delay(400);
   },
 
-  login: async (_data: NewLoginRequest): Promise<NewLoginResponse> => {
+  login: async (): Promise<NewLoginResponse> => {
     await delay(400);
     return { accessToken: 'mock-access-token' };
   },
@@ -200,7 +197,7 @@ export const stagesApi = {
     return [];
   },
 
-  clearStage: async (_data: StageClearRequest): Promise<void> => {
+  clearStage: async (): Promise<void> => {
     await delay(300);
   },
 };

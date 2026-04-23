@@ -1,115 +1,63 @@
-import api from './axios';
+import api from './axios'
 
-// Types
-export interface CommunityPost {
-  uuid: string;
-  title: string;
-  content: string;
-  is_adopted: boolean;
-  created_at: string;
-  member: {
-    uuid: string;
-    user_id: string;
-    nickname: string;
-  };
-  answers_count?: number;
+export interface CommunityUser {
+  uuid?: string
+  user_id?: string
+  nickname?: string
 }
 
-export interface CreatePostRequest {
-  title: string;
-  content: string;
+export interface CommunityPost {
+  uuid: string
+  title: string
+  content: string
+  created_at: string
+  user?: CommunityUser
+  member?: CommunityUser
+  is_adopt?: boolean
+  adopted_answer?: CommunityAnswer | null
 }
 
 export interface CommunityAnswer {
-  uuid: string;
-  content: string;
-  is_adopted: boolean;
-  created_at: string;
-  member: {
-    uuid: string;
-    user_id: string;
-    nickname: string;
-  };
+  uuid: string
+  content: string
+  created_at: string
+  is_adopted?: boolean
+  user?: CommunityUser
+  member?: CommunityUser
 }
 
-export interface CreateAnswerRequest {
-  content: string;
-}
-
-// Community Post API
 export const communityPostAPI = {
-  // 커뮤니티 글 목록 조회
-  getPostList: async (params?: {
-    page?: number;
-    size?: number;
-    sort?: string;
-    is_asc?: boolean;
-  }): Promise<{ results: CommunityPost[]; page: number; size: number; sort: string; is_asc: boolean }> => {
-    const response = await api.get('/questions', { params });
-    return response.data;
+  getPostList: async (params?: { page?: number; size?: number; sort?: string; is_asc?: boolean }) => {
+    const response = await api.get<{ results: CommunityPost[] }>('/questions', { params })
+    return response.data
   },
-
-  // 커뮤니티 글 상세 조회
-  getPost: async (uuid: string): Promise<CommunityPost> => {
-    const response = await api.get<CommunityPost>(`/questions/${uuid}`);
-    return response.data;
+  getPost: async (uuid: string) => {
+    const response = await api.get<CommunityPost>(`/questions/${uuid}`)
+    return response.data
   },
-
-  // 커뮤니티 글 생성
-  createPost: async (data: CreatePostRequest): Promise<CommunityPost> => {
-    const response = await api.post<CommunityPost>('/questions', data);
-    return response.data;
+  createPost: async (data: { title: string; content: string }) => {
+    const response = await api.post('/questions', data)
+    return response.data
   },
-
-  // 커뮤니티 글 수정
-  updatePost: async (uuid: string, data: CreatePostRequest): Promise<CommunityPost> => {
-    const response = await api.put<CommunityPost>(`/questions/${uuid}`, data);
-    return response.data;
+  deletePost: async (uuid: string) => {
+    await api.delete(`/questions/${uuid}`)
   },
+}
 
-  // 커뮤니티 글 삭제
-  deletePost: async (uuid: string): Promise<void> => {
-    await api.delete(`/questions/${uuid}`);
-  },
-};
-
-// Community Answer API
 export const communityAnswerAPI = {
-  // 댓글 목록 조회
-  getAnswerList: async (postUuid: string, params?: {
-    page?: number;
-    size?: number;
-  }): Promise<{ results: CommunityAnswer[]; page: number; size: number }> => {
-    const response = await api.get(`/questions/${postUuid}/answers`, { params });
-    return response.data;
+  getAnswerList: async (questionUuid: string, params?: { page?: number; size?: number; is_asc?: boolean }) => {
+    const response = await api.get<{ results: CommunityAnswer[] }>(`/questions/${questionUuid}/answers`, { params })
+    return response.data
   },
-
-  // 댓글 상세 조회
-  getAnswer: async (uuid: string): Promise<CommunityAnswer> => {
-    const response = await api.get<CommunityAnswer>(`/answers/${uuid}`);
-    return response.data;
+  createAnswer: async (questionUuid: string, data: { content: string }) => {
+    const response = await api.post(`/question/${questionUuid}/answers`, data)
+    return response.data
   },
-
-  // 댓글 생성
-  createAnswer: async (postUuid: string, data: CreateAnswerRequest): Promise<CommunityAnswer> => {
-    const response = await api.post<CommunityAnswer>(`/questions/${postUuid}/answers`, data);
-    return response.data;
+  deleteAnswer: async (uuid: string) => {
+    await api.delete(`/answers/${uuid}`)
   },
-
-  // 댓글 수정
-  updateAnswer: async (uuid: string, data: CreateAnswerRequest): Promise<CommunityAnswer> => {
-    const response = await api.put<CommunityAnswer>(`/answers/${uuid}`, data);
-    return response.data;
+  adoptAnswer: async (uuid: string) => {
+    const response = await api.post(`/answers/${uuid}/adopt`)
+    return response.data
   },
-
-  // 댓글 삭제
-  deleteAnswer: async (uuid: string): Promise<void> => {
-    await api.delete(`/answers/${uuid}`);
-  },
-
-  // 댓글 채택
-  adoptAnswer: async (uuid: string): Promise<CommunityAnswer> => {
-    const response = await api.post<CommunityAnswer>(`/answers/${uuid}/adopt`);
-    return response.data;
-  },
-};
+}
