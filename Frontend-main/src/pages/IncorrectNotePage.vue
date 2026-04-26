@@ -18,7 +18,12 @@ onMounted(async () => {
   }
 
   try {
-    const response = await wrongNoteAPI.getUserWrongNotes(auth.state.user.uuid, { page: 1, size: 50, sort: 'created_at', is_asc: false })
+    const response = await wrongNoteAPI.getUserWrongNotes(auth.state.user.uuid, {
+      page: 0,
+      size: 50,
+      sort: 'created_at',
+      is_asc: false,
+    })
     incorrectNotes.value = response.results
   } catch (fetchError) {
     console.error(fetchError)
@@ -28,32 +33,53 @@ onMounted(async () => {
 </script>
 
 <template>
-  <div class="min-h-screen bg-gray-50 p-10 font-sans">
-    <div class="mx-auto max-w-6xl space-y-6">
-      <PageHeader title="오답노트" subtitle="틀린 문제와 정답, 그리고 왜 틀렸는지를 다시 확인해 보세요." back-link="/" />
+  <div class="min-h-screen bg-[#FFF2EF]">
+    <PageHeader
+      title="오답노트"
+      subtitle="틀린 답안과 AI 피드백을 다시 확인하면서 취약한 부분을 복습해 보세요."
+      back-link="/"
+    />
 
-      <div v-if="error" class="rounded-3xl border border-red-200 bg-red-50 p-6 text-red-700">{{ error }}</div>
+    <main class="mx-auto max-w-6xl px-4 py-8 sm:px-6 lg:px-8">
+      <div
+        v-if="error"
+        class="rounded-[28px] border border-[#F7A5A5] bg-white p-6 text-[#1A2A4F] shadow-[0_18px_44px_rgba(26,42,79,0.08)]"
+      >
+        {{ error }}
+      </div>
 
       <section v-else class="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
         <article
           v-for="note in incorrectNotes"
           :key="note.uuid"
-          class="rounded-3xl border-4 border-gray-900 bg-white p-6 shadow-[6px_6px_0_0_rgba(0,0,0,1)]"
+          class="rounded-[30px] border border-[#1A2A4F]/10 bg-white p-6 shadow-[0_18px_44px_rgba(26,42,79,0.08)]"
         >
           <div class="flex items-center justify-between gap-4">
-            <h2 class="text-2xl font-black text-gray-900">{{ note.problem_uuid ?? '오답 기록' }}</h2>
-            <span class="text-sm uppercase tracking-[0.3em] text-gray-500">오답 분석</span>
+            <h2 class="text-2xl font-black text-[#1A2A4F]">
+              {{ note.problem_id ? `문제 #${note.problem_id}` : '오답 기록' }}
+            </h2>
+            <span
+              class="rounded-full bg-[#FFF2EF] px-3 py-1 text-xs font-black tracking-[0.18em] text-[#1A2A4F]/70"
+            >
+              {{ note.is_reviewed ? 'REVIEWED' : 'PENDING' }}
+            </span>
           </div>
           <div class="mt-4 space-y-4">
-            <div class="rounded-3xl bg-gray-900 p-4 font-mono text-sm text-gray-100 whitespace-pre-wrap">{{ note.wrong_answer }}</div>
-            <div class="rounded-3xl bg-gray-100 p-4 text-sm text-gray-800">
-              <p class="mb-2 font-bold">정답</p>
-              <pre class="whitespace-pre-wrap">{{ note.correct_answer ?? '-' }}</pre>
+            <div class="rounded-[24px] bg-[#1A2A4F] p-4 font-mono text-sm text-gray-100 whitespace-pre-wrap">
+              {{ note.wrong_answer }}
             </div>
-            <p class="text-gray-600">해설: {{ note.ai_explanation ?? '해설 없음' }}</p>
+            <div class="rounded-[24px] bg-[#FFF2EF] p-4 text-sm text-[#1A2A4F]">
+              <p class="mb-2 font-black">AI 피드백</p>
+              <pre class="whitespace-pre-wrap font-sans">{{
+                note.feedback ?? '아직 피드백이 없습니다.'
+              }}</pre>
+            </div>
+            <p class="text-sm leading-6 text-slate-600">
+              마지막 제출: {{ note.last_submitted_at ?? note.created_at ?? '-' }}
+            </p>
           </div>
         </article>
       </section>
-    </div>
+    </main>
   </div>
 </template>

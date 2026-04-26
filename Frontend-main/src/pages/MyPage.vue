@@ -14,7 +14,12 @@ const isLoading = ref(true)
 const error = ref('')
 
 const profileImageUrl = computed(
-  () => profile.value?.profile_image_url ?? profile.value?.profile_url ?? profile.value?.profile_image ?? profile.value?.avatar_url
+  () =>
+    profile.value?.profile_image_url ??
+    profile.value?.profile_url ??
+    profile.value?.profile_image ??
+    profile.value?.avatar_url ??
+    profile.value?.profile
 )
 
 onMounted(async () => {

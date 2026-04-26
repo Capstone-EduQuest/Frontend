@@ -8,8 +8,11 @@ import { useAuthStore } from '../store/auth'
 const router = useRouter()
 const route = useRoute()
 const auth = useAuthStore()
-const stages = ref<{ stage: string | number; total_question_count: number; clear: number[] }[]>([])
+const stages = ref<{ stage: string | number; total_question_count?: number; totalQuestionCount?: number; clear: number[] }[]>([])
 const error = ref('')
+
+const getStageTotalCount = (stage: { total_question_count?: number; totalQuestionCount?: number }) =>
+  stage.totalQuestionCount ?? stage.total_question_count ?? 0
 
 const normalizedStages = computed(() =>
   stages.value.map((stage) => ({
@@ -18,8 +21,8 @@ const normalizedStages = computed(() =>
     title: `Stage ${stage.stage}`,
     reward: '-',
     clearCount: stage.clear.length,
-    totalCount: stage.total_question_count,
-    isCleared: stage.clear.length === stage.total_question_count && stage.total_question_count > 0,
+    totalCount: getStageTotalCount(stage),
+    isCleared: stage.clear.length === getStageTotalCount(stage) && getStageTotalCount(stage) > 0,
   }))
 )
 

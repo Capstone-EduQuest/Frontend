@@ -2,7 +2,6 @@ import api from './axios'
 
 export interface CommunityUser {
   uuid?: string
-  user_id?: string
   nickname?: string
 }
 
@@ -14,14 +13,14 @@ export interface CommunityPost {
   user?: CommunityUser
   member?: CommunityUser
   is_adopt?: boolean
-  adopted_answer?: CommunityAnswer | null
+  adopted_answer?: string | null
 }
 
 export interface CommunityAnswer {
   uuid: string
   content: string
   created_at: string
-  is_adopted?: boolean
+  is_adopt?: boolean
   user?: CommunityUser
   member?: CommunityUser
 }

@@ -9,13 +9,30 @@ const props = defineProps<{
 
 const router = useRouter()
 const problem = ref<ProblemDetail | null>(null)
-const code = ref('# 여기에 Python 코드를 작성하세요.\nprint("Hello, World!")')
+const code = ref('# Python 코드를 작성하세요.\nprint("Hello, World!")')
 const blockAnswer = ref<number[]>([])
 const hintMessage = ref('')
 const submissionResult = ref<{ success: boolean; message: string } | null>(null)
 const isLoading = ref(false)
 
-const hasBlocks = computed(() => Boolean(problem.value?.blocks?.length))
+const parsedBlock = computed(() => {
+  const rawBlock = problem.value?.block
+  if (!rawBlock) {
+    return null
+  }
+
+  if (typeof rawBlock === 'string') {
+    try {
+      return JSON.parse(rawBlock) as { answer?: number[]; blocks?: Array<{ code: string }> }
+    } catch {
+      return null
+    }
+  }
+
+  return rawBlock
+})
+
+const hasBlocks = computed(() => Boolean(parsedBlock.value?.blocks?.length))
 
 const fetchProblem = async () => {
   if (!props.problemId) {
@@ -28,8 +45,8 @@ const fetchProblem = async () => {
     hintMessage.value = ''
     submissionResult.value = null
   } catch (error) {
-    console.error('문제를 불러오지 못했습니다.', error)
-    alert('문제를 불러오는데 실패했습니다.')
+    console.error('failed to fetch problem:', error)
+    alert('문제를 불러오지 못했습니다.')
   }
 }
 
@@ -75,7 +92,7 @@ const handleHint = async (level: number) => {
 
   try {
     const response = await hintAPI.getHint(problem.value.uuid, level)
-    hintMessage.value = response.hint
+    hintMessage.value = response.content ?? response.hint ?? ''
   } catch (error: any) {
     hintMessage.value = error.response?.data?.details ?? '힌트를 불러오지 못했습니다.'
   }
@@ -90,12 +107,18 @@ onMounted(fetchProblem)
 </script>
 
 <template>
-  <div v-if="!problem" class="rounded-2xl border-4 border-dashed border-gray-600 bg-gray-800 p-10 text-center text-white">
+  <div
+    v-if="!problem"
+    class="rounded-2xl border-4 border-dashed border-gray-600 bg-gray-800 p-10 text-center text-white"
+  >
     <h2 class="mb-4 text-3xl font-bold">문제 로딩 중...</h2>
     <div class="mx-auto h-12 w-12 animate-spin rounded-full border-b-2 border-blue-400" />
   </div>
 
-  <div v-else class="flex max-h-[90vh] flex-col overflow-hidden rounded-2xl border-4 border-gray-600 bg-gray-800 p-8 text-white">
+  <div
+    v-else
+    class="flex max-h-[90vh] flex-col overflow-hidden rounded-2xl border-4 border-gray-600 bg-gray-800 p-8 text-white"
+  >
     <div class="mb-6 shrink-0">
       <h2 class="mb-2 text-2xl font-bold text-blue-400">문제 {{ problem.number }}</h2>
       <p class="mb-4 whitespace-pre-line text-gray-300">{{ problem.summary }}</p>
@@ -113,10 +136,12 @@ onMounted(fetchProblem)
 
     <div class="flex min-h-0 flex-1 flex-col">
       <div v-if="hasBlocks" class="mb-4 rounded-xl bg-gray-900 p-4">
-        <p class="mb-3 text-sm text-gray-300">블록 문제인 경우 클릭 순서대로 답안을 만들 수 있습니다.</p>
+        <p class="mb-3 text-sm text-gray-300">
+          블록 문제인 경우 버튼을 눌러 정답 순서를 만들어 보세요.
+        </p>
         <div class="flex flex-wrap gap-2">
           <button
-            v-for="(block, index) in problem.blocks"
+            v-for="(block, index) in parsedBlock?.blocks"
             :key="`${index}-${block.code}`"
             type="button"
             class="rounded-lg bg-gray-700 px-3 py-2 text-sm hover:bg-gray-600"
@@ -131,7 +156,7 @@ onMounted(fetchProblem)
       <textarea
         v-model="code"
         class="w-full flex-1 resize-none rounded-lg bg-gray-900 p-4 font-mono text-sm text-green-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
-        placeholder="Python 코드를 작성하세요..."
+        placeholder="Python 코드를 작성하세요."
       />
 
       <div class="mt-4 flex flex-wrap gap-2">
@@ -160,8 +185,12 @@ onMounted(fetchProblem)
       </div>
 
       <div class="mt-4 flex gap-4">
-        <button type="button" disabled class="flex-1 cursor-not-allowed rounded-lg bg-blue-400 px-6 py-3 font-bold text-white">
-          코드 실행 (백엔드 미지원)
+        <button
+          type="button"
+          disabled
+          class="flex-1 cursor-not-allowed rounded-lg bg-blue-400 px-6 py-3 font-bold text-white"
+        >
+          코드 실행 (미지원)
         </button>
         <button
           type="button"
@@ -169,7 +198,7 @@ onMounted(fetchProblem)
           class="flex-1 rounded-lg bg-green-600 px-6 py-3 font-bold text-white transition-colors hover:bg-green-500 disabled:bg-gray-600"
           @click="handleSubmit"
         >
-          {{ isLoading ? '제출 중...' : '답안 제출' }}
+          {{ isLoading ? '제출 중...' : '정답 제출' }}
         </button>
       </div>
     </div>

@@ -37,7 +37,7 @@ onMounted(async () => {
       <section v-else class="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
         <article
           v-for="item in bookmarks"
-          :key="item.uuid ?? item.problem?.uuid ?? `${item.stage}-${item.number}`"
+          :key="item.uuid ?? item.problem?.uuid ?? item.problem_uuid ?? `${item.stage}-${item.number}`"
           class="rounded-3xl border-4 border-gray-900 bg-white p-6 shadow-[6px_6px_0_0_rgba(0,0,0,1)]"
         >
           <div class="flex items-center justify-between">

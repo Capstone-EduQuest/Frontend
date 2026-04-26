@@ -5,6 +5,7 @@ export interface BookmarkItem {
   stage?: string
   type?: string
   number?: number
+  problem_uuid?: string
   problem?: {
     uuid: string
     number: number

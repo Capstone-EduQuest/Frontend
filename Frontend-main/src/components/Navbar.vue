@@ -27,15 +27,12 @@ const handleLogout = async () => {
 <template>
   <nav class="sticky top-0 z-50 border-b border-[#1A2A4F]/10 bg-white/85 backdrop-blur">
     <div class="mx-auto max-w-7xl px-4 py-4 sm:px-6 lg:px-8">
-      <div class="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+      <div class="flex flex-col gap-4 lg:grid lg:grid-cols-[1fr_auto_1fr] lg:items-center">
         <div class="flex items-center justify-between gap-4">
           <RouterLink to="/" class="flex items-center gap-3">
-            <div class="flex h-12 w-12 items-center justify-center rounded-2xl border-2 border-[#1A2A4F] bg-[#F7A5A5] text-xl font-black text-[#1A2A4F] shadow-[4px_4px_0_0_rgba(26,42,79,0.18)]">
-              E
-            </div>
+            <img src="/logo-transparent.png" alt="EduQuest logo" class="h-12 w-12 object-contain" />
             <div>
               <p class="text-2xl font-black tracking-tight text-[#1A2A4F]">EduQuest</p>
-              <p class="text-xs font-medium text-slate-500">쉽고 즐겁게 배우는 코딩 모험</p>
             </div>
           </RouterLink>
 
@@ -58,8 +55,8 @@ const handleLogout = async () => {
           </div>
         </div>
 
-        <div class="flex flex-col gap-3 lg:flex-row lg:items-center lg:gap-5">
-          <div class="flex flex-wrap items-center gap-2 rounded-[28px] border border-[#1A2A4F]/10 bg-[#FFF2EF] p-2">
+        <div class="flex justify-center">
+          <div class="flex flex-wrap items-center justify-center gap-2 rounded-[28px] border border-[#1A2A4F]/10 bg-[#FFF2EF] p-2">
             <RouterLink to="/game" class="rounded-full px-4 py-2 text-sm font-bold text-[#1A2A4F] transition hover:bg-white">
               스테이지
             </RouterLink>
@@ -76,8 +73,10 @@ const handleLogout = async () => {
               공지사항
             </RouterLink>
           </div>
+        </div>
 
-          <div class="hidden items-center gap-2 lg:flex">
+        <div class="hidden justify-end lg:flex">
+          <div class="flex items-center gap-2">
             <template v-if="!isLoggedIn">
               <RouterLink
                 to="/login"
@@ -114,13 +113,6 @@ const handleLogout = async () => {
                 로그아웃
               </button>
             </template>
-
-            <RouterLink
-              to="/game"
-              class="rounded-full border-2 border-[#1A2A4F] bg-[#1A2A4F] px-5 py-3 text-sm font-black text-[#FFF2EF] shadow-[6px_6px_0_0_rgba(26,42,79,0.15)] transition hover:-translate-y-0.5"
-            >
-              오늘의 모험 시작
-            </RouterLink>
           </div>
         </div>
       </div>
