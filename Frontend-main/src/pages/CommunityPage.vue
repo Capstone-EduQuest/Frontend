@@ -17,7 +17,7 @@ const newAnswerContent = ref('')
 const isLoading = ref(false)
 const showQuestionForm = ref(false)
 
-const displayUser = (user?: { nickname?: string; user_id?: string }) => user?.nickname ?? user?.user_id ?? '익명'
+const displayUser = (user?: { nickname?: string; uuid?: string }) => user?.nickname ?? user?.uuid ?? '익명'
 
 const fetchQuestions = async () => {
   const response = await communityPostAPI.getPostList({ page: 1, size: 50, sort: 'created_at', is_asc: false })

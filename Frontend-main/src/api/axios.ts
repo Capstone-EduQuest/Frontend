@@ -37,6 +37,8 @@ api.interceptors.response.use(
         return api(originalRequest)
       } catch (refreshError) {
         localStorage.removeItem('accessToken')
+        localStorage.removeItem('authUserUuid')
+        localStorage.removeItem('authUserId')
         if (typeof window !== 'undefined' && window.location.pathname !== '/login') {
           window.location.href = '/login'
         }

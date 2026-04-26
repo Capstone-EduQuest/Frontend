@@ -1,4 +1,5 @@
 import api from './axios'
+import { decodeJwtUuid } from '../utils/jwt'
 
 export interface LoginRequest {
   id: string
@@ -13,6 +14,7 @@ export interface UserProfile {
   uuid: string
   id?: string
   user_id?: string
+  email?: string
   birth: string
   nickname: string
   point?: number
@@ -27,6 +29,13 @@ export interface UserProfile {
     uuid: string
     balance: number
   }
+}
+
+export interface UserListItem {
+  uuid: string
+  id: string
+  email: string
+  nickname: string
 }
 
 export const authAPI = {
@@ -63,7 +72,7 @@ export const userAPI = {
   getUserList: async (params?: { page?: number; size?: number; sort?: string; is_asc?: boolean }) => {
     const response = await api.get('/users', { params })
     return response.data as {
-      results: UserProfile[]
+      results: UserListItem[]
       page: number
       size: number
       sort: string
@@ -80,8 +89,8 @@ export const userAPI = {
   updateRole: async (uuid: string, roleUuid: string): Promise<void> => {
     await api.put(`/users/${uuid}/role`, { role_uuid: roleUuid })
   },
-  lockUser: async (uuid: string, isLocked: boolean): Promise<void> => {
-    await api.put(`/users/${uuid}/lock`, { is_locked: isLocked })
+  lockUser: async (uuid: string): Promise<void> => {
+    await api.put(`/users/${uuid}/lock`)
   },
   getRoles: async (): Promise<{ uuid: string; name: string }[]> => {
     const response = await api.get<{ results: { uuid: string; name: string }[] }>('/users/roles')
@@ -90,4 +99,28 @@ export const userAPI = {
   deleteUser: async (uuid: string): Promise<void> => {
     await api.delete(`/users/${uuid}`)
   },
+}
+
+export const resolveProfileUuid = async (options: {
+  accessToken?: string | null
+  storedUuid?: string | null
+  userId?: string | null
+}) => {
+  if (options.storedUuid) {
+    return options.storedUuid
+  }
+
+  if (options.accessToken) {
+    const uuidFromToken = decodeJwtUuid(options.accessToken)
+    if (uuidFromToken) {
+      return uuidFromToken
+    }
+  }
+
+  if (options.userId) {
+    const response = await userAPI.getUuidById(options.userId)
+    return response.uuid
+  }
+
+  return null
 }

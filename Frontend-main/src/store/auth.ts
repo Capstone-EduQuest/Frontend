@@ -1,6 +1,10 @@
 import { reactive } from 'vue'
-import { authAPI, userAPI, type UserProfile } from '../api/auth'
-import { decodeJwtUuid } from '../utils/jwt'
+import { authAPI, resolveProfileUuid, userAPI, type UserProfile } from '../api/auth'
+
+const AUTH_PREVIEW_STORAGE_KEY = 'authPreviewMode'
+const AUTH_PREVIEW_ACCESS_TOKEN = 'preview-mode-token'
+const AUTH_USER_UUID_STORAGE_KEY = 'authUserUuid'
+const AUTH_USER_ID_STORAGE_KEY = 'authUserId'
 
 export interface AuthUser {
   uuid: string
@@ -53,20 +57,70 @@ const setAccessToken = (token: string | null) => {
   }
 }
 
+const setStoredIdentity = (user: Pick<AuthUser, 'uuid' | 'user_id'> | null) => {
+  if (typeof window === 'undefined') {
+    return
+  }
+
+  if (user) {
+    localStorage.setItem(AUTH_USER_UUID_STORAGE_KEY, user.uuid)
+    localStorage.setItem(AUTH_USER_ID_STORAGE_KEY, user.user_id)
+    return
+  }
+
+  localStorage.removeItem(AUTH_USER_UUID_STORAGE_KEY)
+  localStorage.removeItem(AUTH_USER_ID_STORAGE_KEY)
+}
+
+const getPreviewUser = (): AuthUser => ({
+  uuid: 'preview-user-uuid',
+  user_id: 'preview_user',
+  nickname: 'Preview User',
+  birth: '2000-01-01',
+  role: 'user',
+  is_locked: false,
+  balance: 0,
+})
+
+const isPreviewEnabled = () =>
+  typeof window !== 'undefined' && localStorage.getItem(AUTH_PREVIEW_STORAGE_KEY) === 'true'
+
+const applyPreviewSession = () => {
+  state.user = getPreviewUser()
+  state.accessToken = AUTH_PREVIEW_ACCESS_TOKEN
+  state.isLoggedIn = true
+  state.isAuthReady = true
+  setStoredIdentity(state.user)
+}
+
 const applyProfile = async (token: string) => {
-  const uuid = decodeJwtUuid(token)
+  const storedUuid = typeof window !== 'undefined' ? localStorage.getItem(AUTH_USER_UUID_STORAGE_KEY) : null
+  const storedUserId = typeof window !== 'undefined' ? localStorage.getItem(AUTH_USER_ID_STORAGE_KEY) : null
+  const uuid = await resolveProfileUuid({
+    accessToken: token,
+    storedUuid,
+    userId: storedUserId,
+  })
+
   if (!uuid) {
     throw new Error('invalid access token')
   }
 
   const profile = await userAPI.getProfile(uuid)
-  state.user = mapProfile(profile)
+  const mappedProfile = mapProfile(profile)
+  state.user = mappedProfile
   setAccessToken(token)
+  setStoredIdentity(mappedProfile)
 }
 
 const clearAuth = () => {
   state.user = null
   setAccessToken(null)
+  setStoredIdentity(null)
+
+  if (typeof window !== 'undefined') {
+    localStorage.removeItem(AUTH_PREVIEW_STORAGE_KEY)
+  }
 }
 
 const restoreAuth = async (pathname?: string) => {
@@ -77,6 +131,11 @@ const restoreAuth = async (pathname?: string) => {
 
   restorePromise = (async () => {
     try {
+      if (isPreviewEnabled()) {
+        applyPreviewSession()
+        return
+      }
+
       const storedToken = typeof window !== 'undefined' ? localStorage.getItem('accessToken') : null
 
       if (storedToken) {
@@ -104,9 +163,23 @@ const restoreAuth = async (pathname?: string) => {
 }
 
 const loginSuccess = (payload: { user: AuthUser; accessToken: string }) => {
+  if (typeof window !== 'undefined') {
+    localStorage.removeItem(AUTH_PREVIEW_STORAGE_KEY)
+  }
+
   state.user = payload.user
   setAccessToken(payload.accessToken)
+  setStoredIdentity(payload.user)
   state.isAuthReady = true
+}
+
+const enterPreviewMode = () => {
+  if (typeof window !== 'undefined') {
+    localStorage.removeItem('accessToken')
+    localStorage.setItem(AUTH_PREVIEW_STORAGE_KEY, 'true')
+  }
+
+  applyPreviewSession()
 }
 
 const logout = () => {
@@ -118,5 +191,6 @@ export const useAuthStore = () => ({
   state,
   restoreAuth,
   loginSuccess,
+  enterPreviewMode,
   logout,
 })

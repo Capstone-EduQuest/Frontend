@@ -23,21 +23,25 @@ export interface ProblemBlock {
   code: string
 }
 
+export interface ProblemBlockPayload {
+  answer?: number[]
+  blocks?: ProblemBlock[]
+}
+
 export interface ProblemDetail {
   uuid: string
   stage?: string
   stage_uuid?: string
+  stageUuid?: string
+  stageTitle?: string
+  stageNumber?: number
   type: string
   number: number
   summary: string
   example?: string
   expectedOutput?: string
-  blocks?: ProblemBlock[]
-  block?: {
-    answer: number[]
-    blocks: ProblemBlock[]
-  }
-  hints?: Array<number | { level: number; point: number; content: string }>
+  block?: string | ProblemBlockPayload
+  hints?: Array<{ level: number; point: number; content: string }>
 }
 
 export interface CreateProblemRequest {
@@ -57,7 +61,8 @@ export interface CreateProblemRequest {
 export interface ProgressResponse {
   results: {
     stage: string | number
-    total_question_count: number
+    total_question_count?: number
+    totalQuestionCount?: number
     clear: number[]
   }[]
 }
@@ -89,7 +94,7 @@ export const problemAPI = {
     return response.data
   },
   getProblemsByStage: async (stageNumber: number) => {
-    const response = await api.get<{ results: ProblemDetail[] }>('/problems', {
+    const response = await api.get<ProblemDetail[]>('/problems', {
       params: { stage_number: stageNumber },
     })
     return response.data
@@ -119,7 +124,7 @@ export const submissionAPI = {
 
 export const hintAPI = {
   getHint: async (problemUuid: string, level: number) => {
-    const response = await api.get<{ hint: string }>(`/problems/${problemUuid}/hint`, {
+    const response = await api.get<{ hint?: string; content?: string }>(`/problems/${problemUuid}/hint`, {
       params: { level },
     })
     return response.data
