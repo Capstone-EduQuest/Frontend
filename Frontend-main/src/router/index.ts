@@ -11,6 +11,7 @@ import ReviewPage from '../pages/ReviewPage.vue'
 import NoticePage from '../pages/NoticePage.vue'
 import IncorrectNotePage from '../pages/IncorrectNotePage.vue'
 import BookmarkPage from '../pages/BookmarkPage.vue'
+import StagePage from '../pages/StagePage.vue'
 import AdminPage from '../pages/AdminPage.vue'
 import { useAuthStore } from '../store/auth'
 
@@ -26,9 +27,10 @@ const router = createRouter({
     { path: '/community', component: CommunityPage, meta: { requiresAuth: true } },
     { path: '/mypage', component: MyPage, meta: { requiresAuth: true } },
     { path: '/review', component: ReviewPage, meta: { requiresAuth: true } },
-    { path: '/notice', component: NoticePage },
+    { path: '/notice', component: NoticePage, meta: { requiresAuth: true } },
     { path: '/incorrect-note', component: IncorrectNotePage, meta: { requiresAuth: true } },
     { path: '/bookmark', component: BookmarkPage, meta: { requiresAuth: true } },
+    { path: '/stage', component: StagePage, meta: { requiresAuth: true } },
     {
       path: '/admin',
       component: AdminPage,
