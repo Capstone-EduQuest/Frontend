@@ -124,7 +124,7 @@ docker build -t eduquest-frontend:latest .
 컨테이너 실행:
 
 ```bash
-docker run -d -p 8080:80 --name eduquest-frontend eduquest-frontend:latest
+docker run -d -p 3000:80 --name eduquest-frontend eduquest-frontend:latest
 ```
 
 브라우저 접속:
