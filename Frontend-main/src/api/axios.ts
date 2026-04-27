@@ -35,8 +35,10 @@ api.interceptors.response.use(
   (response) => response,
   async (error) => {
     const originalRequest = error.config
+    const isGuestRequest = Boolean(originalRequest?.skipAuth)
+    const isRefreshRequest = typeof originalRequest?.url === 'string' && originalRequest.url.includes('/auth/refresh')
 
-    if (error.response?.status === 401 && !originalRequest?._retry) {
+    if (error.response?.status === 401 && !isGuestRequest && !isRefreshRequest && !originalRequest?._retry) {
       originalRequest._retry = true
 
       try {
