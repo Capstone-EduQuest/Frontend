@@ -40,20 +40,20 @@ export interface UserListItem {
 
 export const authAPI = {
   signIn: async (data: LoginRequest): Promise<LoginResponse> => {
-    const response = await api.post<LoginResponse>('/auth/sign-in', data)
+    const response = await api.post<LoginResponse>('/auth/sign-in', data, { skipAuth: true })
     return response.data
   },
   signUp: async (data: FormData): Promise<void> => {
-    await api.post('/sign-up', data)
+    await api.post('/sign-up', data, { skipAuth: true })
   },
   findId: async (data: { email: string }): Promise<void> => {
-    await api.post('/auth/find-id', data)
+    await api.post('/auth/find-id', data, { skipAuth: true })
   },
   findPassword: async (data: { email: string; id: string }): Promise<void> => {
-    await api.post('/auth/find-password', data)
+    await api.post('/auth/find-password', data, { skipAuth: true })
   },
   resetPassword: async (data: { token: string; new_password: string }): Promise<void> => {
-    await api.put('/auth/reset-password', data)
+    await api.put('/auth/reset-password', data, { skipAuth: true })
   },
   refresh: async (): Promise<LoginResponse> => {
     const response = await api.post<LoginResponse>('/auth/refresh', {})

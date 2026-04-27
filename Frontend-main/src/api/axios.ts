@@ -3,6 +3,16 @@ import axios from 'axios'
 const baseURL = import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:8080/api/v1'
 const GUEST_PATHS = new Set(['/', '/login', '/signup'])
 
+declare module 'axios' {
+  interface AxiosRequestConfig {
+    skipAuth?: boolean
+  }
+
+  interface InternalAxiosRequestConfig {
+    skipAuth?: boolean
+  }
+}
+
 const api = axios.create({
   baseURL,
   timeout: 10000,
@@ -10,6 +20,10 @@ const api = axios.create({
 })
 
 api.interceptors.request.use((config) => {
+  if (config.skipAuth) {
+    return config
+  }
+
   const token = typeof window !== 'undefined' ? localStorage.getItem('accessToken') : null
   if (token) {
     config.headers.Authorization = `Bearer ${token}`
