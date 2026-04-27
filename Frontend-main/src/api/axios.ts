@@ -1,6 +1,7 @@
 import axios from 'axios'
 
 const baseURL = import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:8080/api/v1'
+const GUEST_PATHS = new Set(['/', '/login', '/signup'])
 
 const api = axios.create({
   baseURL,
@@ -39,9 +40,12 @@ api.interceptors.response.use(
         localStorage.removeItem('accessToken')
         localStorage.removeItem('authUserUuid')
         localStorage.removeItem('authUserId')
-        if (typeof window !== 'undefined' && window.location.pathname !== '/login') {
+
+        const currentPath = typeof window !== 'undefined' ? window.location.pathname : null
+        if (currentPath && !GUEST_PATHS.has(currentPath)) {
           window.location.href = '/login'
         }
+
         return Promise.reject(refreshError)
       }
     }
