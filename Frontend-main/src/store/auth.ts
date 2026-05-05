@@ -1,5 +1,7 @@
 import { reactive } from 'vue'
 import { authAPI, resolveProfileUuid, userAPI, type UserProfile } from '../api/auth'
+import { syncUnityAccessToken } from '../utils/unityAuthBridge'
+import { decodeJwtRole } from '../utils/jwt'
 
 const AUTH_PREVIEW_STORAGE_KEY = 'authPreviewMode'
 const AUTH_PREVIEW_ACCESS_TOKEN = 'preview-mode-token'
@@ -32,12 +34,12 @@ const state = reactive<AuthState>({
 
 let restorePromise: Promise<void> | null = null
 
-const mapProfile = (profile: UserProfile): AuthUser => ({
+const mapProfile = (profile: UserProfile, fallbackRole?: string | null): AuthUser => ({
   uuid: profile.uuid,
   user_id: profile.user_id ?? profile.id ?? '',
   nickname: profile.nickname,
   birth: profile.birth,
-  role: profile.role,
+  role: profile.role || fallbackRole || 'user',
   is_locked: profile.is_locked,
   balance: profile.wallet?.balance ?? profile.point ?? 0,
 })
@@ -55,6 +57,8 @@ const setAccessToken = (token: string | null) => {
   } else {
     localStorage.removeItem('accessToken')
   }
+
+  syncUnityAccessToken(token)
 }
 
 const setStoredIdentity = (user: Pick<AuthUser, 'uuid' | 'user_id'> | null) => {
@@ -107,7 +111,7 @@ const applyProfile = async (token: string) => {
   }
 
   const profile = await userAPI.getProfile(uuid)
-  const mappedProfile = mapProfile(profile)
+  const mappedProfile = mapProfile(profile, decodeJwtRole(token))
   state.user = mappedProfile
   setAccessToken(token)
   setStoredIdentity(mappedProfile)

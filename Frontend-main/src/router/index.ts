@@ -15,6 +15,11 @@ import StagePage from '../pages/StagePage.vue'
 import AdminPage from '../pages/AdminPage.vue'
 import { useAuthStore } from '../store/auth'
 
+const isAdminRole = (role?: string | null) => {
+  const normalized = role?.trim().toLowerCase()
+  return normalized === 'admin' || normalized === 'admine' || normalized === 'role_admin'
+}
+
 const router = createRouter({
   history: createWebHistory(),
   routes: [
@@ -61,7 +66,7 @@ router.beforeEach(async (to) => {
     }
 
     const role = auth.state.user?.role
-    if (role !== 'admin' && role !== 'admine') {
+    if (!isAdminRole(role)) {
       return '/home'
     }
   }

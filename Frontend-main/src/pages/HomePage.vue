@@ -119,10 +119,10 @@ const startMetricAnimations = () => {
 }
 
 const mapBookmarkPreview = (bookmark: BookmarkItem): BookmarkPreview => ({
-  id: bookmark.uuid ?? bookmark.problem_uuid ?? `${bookmark.stage}-${bookmark.number}`,
+  id: bookmark.problem_uuid ?? `${bookmark.stage}-${bookmark.number}`,
   stage: bookmark.stage ?? 'Stage',
-  title: bookmark.problem?.summary ?? `문제 ${bookmark.number ?? '-'}`,
-  note: `문제 번호 ${bookmark.problem?.number ?? bookmark.number ?? '-'}를 다시 풀어 보세요.`,
+  title: `문제 ${bookmark.number ?? '-'}`,
+  note: `${bookmark.stage ?? '스테이지'}의 북마크 문제를 다시 복습해 보세요.`,
   difficulty: bookmark.type ?? 'basic',
 })
 

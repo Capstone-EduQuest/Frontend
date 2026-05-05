@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onMounted, ref } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import PageHeader from '../components/PageHeader.vue'
 import { communityAnswerAPI, communityPostAPI, type CommunityAnswer, type CommunityPost } from '../api/community'
@@ -8,6 +8,7 @@ import { useAuthStore } from '../store/auth'
 const router = useRouter()
 const route = useRoute()
 const auth = useAuthStore()
+
 const questions = ref<CommunityPost[]>([])
 const selectedQuestion = ref<CommunityPost | null>(null)
 const answers = ref<CommunityAnswer[]>([])
@@ -16,12 +17,31 @@ const newQuestionContent = ref('')
 const newAnswerContent = ref('')
 const isLoading = ref(false)
 const showQuestionForm = ref(false)
+const searchField = ref<'title' | 'content' | 'author'>('title')
+const searchKeyword = ref('')
 
 const displayUser = (user?: { nickname?: string; uuid?: string }) => user?.nickname ?? user?.uuid ?? '익명'
+const isAdmin = computed(() => auth.state.user?.role?.toLowerCase() === 'admin')
 
 const fetchQuestions = async () => {
-  const response = await communityPostAPI.getPostList({ page: 1, size: 50, sort: 'created_at', is_asc: false })
+  const keyword = searchKeyword.value.trim()
+  const searchBy = searchField.value === 'author' ? 'nickname' : searchField.value
+
+  const response = await communityPostAPI.getPostList({
+    page: 1,
+    size: 50,
+    sort: 'created_at',
+    is_asc: false,
+    searchBy: keyword ? searchBy : undefined,
+    keyword: keyword || undefined,
+  })
+
   questions.value = response.results
+}
+
+const handleSearch = async () => {
+  searchKeyword.value = searchKeyword.value.trim()
+  await fetchQuestions()
 }
 
 const handleQuestionClick = async (question: CommunityPost) => {
@@ -33,7 +53,10 @@ const handleQuestionClick = async (question: CommunityPost) => {
 const handleCreateQuestion = async () => {
   isLoading.value = true
   try {
-    await communityPostAPI.createPost({ title: newQuestionTitle.value, content: newQuestionContent.value })
+    await communityPostAPI.createPost({
+      title: newQuestionTitle.value,
+      content: newQuestionContent.value,
+    })
     showQuestionForm.value = false
     newQuestionTitle.value = ''
     newQuestionContent.value = ''
@@ -45,11 +68,35 @@ const handleCreateQuestion = async () => {
 
 const handleCreateAnswer = async () => {
   if (!selectedQuestion.value) return
+
   isLoading.value = true
   try {
     await communityAnswerAPI.createAnswer(selectedQuestion.value.uuid, { content: newAnswerContent.value })
     newAnswerContent.value = ''
     await handleQuestionClick(selectedQuestion.value)
+  } finally {
+    isLoading.value = false
+  }
+}
+
+const handleDelete = async (postId: string) => {
+  if (!confirm('정말 삭제하시겠습니까?')) {
+    return
+  }
+
+  isLoading.value = true
+  try {
+    await communityPostAPI.deletePost(postId)
+
+    if (selectedQuestion.value?.uuid === postId) {
+      selectedQuestion.value = null
+      answers.value = []
+    }
+
+    await fetchQuestions()
+  } catch (deleteError) {
+    console.error(deleteError)
+    alert('게시글 삭제에 실패했습니다.')
   } finally {
     isLoading.value = false
   }
@@ -65,7 +112,7 @@ onMounted(async () => {
   <div class="min-h-screen bg-[#FFF2EF]">
     <PageHeader
       title="커뮤니티"
-      :subtitle="selectedQuestion ? '답변을 읽고 내가 아는 것도 함께 나눠 보세요.' : '궁금한 것을 편하게 물어보고, 다른 친구들의 질문도 구경해 보세요.'"
+      :subtitle="selectedQuestion ? '답변을 읽고 직접 의견도 남겨 보세요.' : '궁금한 점을 질문하고 다른 학습자들의 게시글도 둘러보세요.'"
       :back-link="selectedQuestion ? undefined : '/'"
       @back="selectedQuestion = null"
     >
@@ -96,21 +143,30 @@ onMounted(async () => {
 
         <div class="mt-6 space-y-4">
           <h2 class="text-2xl font-black text-[#1A2A4F]">답변 {{ answers.length }}개</h2>
-          <div v-for="answer in answers" :key="answer.uuid" class="rounded-[28px] border border-[#FFDBB6] bg-white p-5 shadow-[0_14px_30px_rgba(26,42,79,0.06)]">
+          <div
+            v-for="answer in answers"
+            :key="answer.uuid"
+            class="rounded-[28px] border border-[#FFDBB6] bg-white p-5 shadow-[0_14px_30px_rgba(26,42,79,0.06)]"
+          >
             <p class="text-sm font-bold text-slate-500">작성자 {{ displayUser(answer.user ?? answer.member) }}</p>
             <p class="mt-3 whitespace-pre-line leading-7 text-slate-700">{{ answer.content }}</p>
           </div>
         </div>
 
         <div class="mt-6 rounded-[30px] border border-[#F7A5A5] bg-white p-6 shadow-[0_18px_44px_rgba(26,42,79,0.08)]">
-          <h3 class="text-xl font-black text-[#1A2A4F]">나도 답변해 보기</h3>
+          <h3 class="text-xl font-black text-[#1A2A4F]">답변 작성하기</h3>
           <textarea
             v-model="newAnswerContent"
-            placeholder="친구에게 알려주고 싶은 내용을 편하게 적어 보세요."
+            placeholder="질문에 도움이 되는 답변을 남겨 주세요."
             class="mt-4 h-36 w-full resize-none rounded-[22px] border border-[#F7A5A5] bg-[#FFF2EF] p-4 focus:border-[#1A2A4F] focus:outline-none focus:ring-2 focus:ring-[#FFDBB6]"
           />
           <div class="mt-4 flex justify-end">
-            <button type="button" :disabled="isLoading" class="rounded-full bg-[#1A2A4F] px-6 py-3 font-black text-[#FFF2EF] hover:bg-[#233868]" @click="handleCreateAnswer">
+            <button
+              type="button"
+              :disabled="isLoading"
+              class="rounded-full bg-[#1A2A4F] px-6 py-3 font-black text-[#FFF2EF] hover:bg-[#233868]"
+              @click="handleCreateAnswer"
+            >
               답변 등록
             </button>
           </div>
@@ -118,19 +174,46 @@ onMounted(async () => {
       </template>
 
       <template v-else>
+        <div class="mb-6 rounded-[30px] border-4 border-[#1A2A4F] bg-white p-5 shadow-[8px_8px_0_0_rgba(26,42,79,0.14)]">
+          <div class="flex flex-col gap-3 lg:flex-row lg:items-center">
+            <select
+              v-model="searchField"
+              class="rounded-[18px] border-2 border-[#1A2A4F] bg-[#FFF2EF] px-4 py-3 font-bold text-[#1A2A4F] focus:outline-none"
+            >
+              <option value="title">제목(Title)</option>
+              <option value="content">내용(Content)</option>
+              <option value="author">작성자(ID)</option>
+            </select>
+            <input
+              v-model="searchKeyword"
+              type="text"
+              placeholder="검색어를 입력해 주세요"
+              class="flex-1 rounded-[18px] border-2 border-[#1A2A4F] bg-[#FFF2EF] px-4 py-3 text-[#1A2A4F] placeholder:text-[#1A2A4F]/45 focus:outline-none"
+              @keyup.enter="void handleSearch()"
+            >
+            <button
+              type="button"
+              class="rounded-[18px] border-2 border-[#1A2A4F] bg-[#F7A5A5] px-6 py-3 font-black text-[#1A2A4F] shadow-[4px_4px_0_0_rgba(26,42,79,1)] transition hover:-translate-y-0.5 active:translate-y-0"
+              @click="void handleSearch()"
+            >
+              검색
+            </button>
+          </div>
+        </div>
+
         <div v-if="showQuestionForm" class="mb-6 rounded-[30px] border border-[#F7A5A5] bg-white p-6 shadow-[0_18px_44px_rgba(26,42,79,0.08)]">
           <h2 class="text-2xl font-black text-[#1A2A4F]">새 질문 쓰기</h2>
-          <p class="mt-2 text-sm leading-6 text-slate-600">제목은 짧고 분명하게, 내용은 천천히 자세히 적어 보세요.</p>
+          <p class="mt-2 text-sm leading-6 text-slate-600">제목은 짧고 분명하게, 내용은 자세하게 적어 보세요.</p>
           <div class="mt-5 space-y-4">
             <input
               v-model="newQuestionTitle"
               type="text"
-              placeholder="예: for문이 왜 반복되는지 궁금해요"
+              placeholder="무엇이 궁금한지 제목으로 적어 주세요"
               class="w-full rounded-[22px] border border-[#F7A5A5] bg-[#FFF2EF] p-4 focus:border-[#1A2A4F] focus:outline-none focus:ring-2 focus:ring-[#FFDBB6]"
             >
             <textarea
               v-model="newQuestionContent"
-              placeholder="어디가 헷갈렸는지, 어떤 걸 해 봤는지 적어 주세요."
+              placeholder="상황과 궁금한 내용을 구체적으로 적어 주세요"
               class="h-40 w-full resize-none rounded-[22px] border border-[#F7A5A5] bg-[#FFF2EF] p-4 focus:border-[#1A2A4F] focus:outline-none focus:ring-2 focus:ring-[#FFDBB6]"
             />
             <div class="flex justify-end gap-3">
@@ -157,10 +240,23 @@ onMounted(async () => {
                   작성자 {{ displayUser(question.user ?? question.member) }}
                 </p>
                 <h3 class="mt-3 text-2xl font-black text-[#1A2A4F]">{{ question.title }}</h3>
-                <p class="mt-3 line-clamp-3 leading-7 text-slate-600">{{ question.content }}</p>
+                <p class="mt-3 text-sm font-bold text-slate-500">
+                  작성일 {{ question.created_at ? new Date(question.created_at).toLocaleDateString() : '-' }}
+                </p>
               </div>
-              <div class="rounded-[22px] bg-[#FFDBB6] px-4 py-3 text-center text-sm font-bold text-[#1A2A4F]">
-                질문 보기
+              <div class="flex shrink-0 items-start gap-3">
+                <button
+                  v-if="isAdmin"
+                  type="button"
+                  class="rounded-[16px] border-2 border-[#1A2A4F] bg-[#F7A5A5] px-4 py-3 text-center text-sm font-black text-[#1A2A4F] shadow-[4px_4px_0_0_rgba(26,42,79,1)] transition hover:-translate-y-0.5 active:translate-y-0 disabled:cursor-not-allowed disabled:opacity-60"
+                  :disabled="isLoading"
+                  @click.stop="handleDelete(question.uuid)"
+                >
+                  🗑️ 삭제
+                </button>
+                <div class="rounded-[22px] bg-[#FFDBB6] px-4 py-3 text-center text-sm font-bold text-[#1A2A4F]">
+                  질문 보기
+                </div>
               </div>
             </div>
           </div>

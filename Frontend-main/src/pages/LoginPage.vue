@@ -3,7 +3,7 @@ import { ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { authAPI, userAPI } from '../api/auth'
 import { useAuthStore } from '../store/auth'
-import { decodeJwtUuid } from '../utils/jwt'
+import { decodeJwtRole, decodeJwtUuid } from '../utils/jwt'
 
 type LoginFieldKey = 'id' | 'password'
 
@@ -98,7 +98,7 @@ const handleLogin = async () => {
         user_id: profile.user_id ?? profile.id ?? '',
         nickname: profile.nickname,
         birth: profile.birth,
-        role: profile.role,
+        role: decodeJwtRole(accessToken) ?? profile.role ?? 'user',
         is_locked: profile.is_locked,
         balance: profile.wallet?.balance ?? profile.point ?? 0,
       },

@@ -1,16 +1,10 @@
 import api from './axios'
 
 export interface BookmarkItem {
-  uuid?: string
   stage?: string
   type?: string
   number?: number
   problem_uuid?: string
-  problem?: {
-    uuid: string
-    number: number
-    summary: string
-  }
 }
 
 export const bookmarkAPI = {

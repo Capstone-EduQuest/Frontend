@@ -57,7 +57,7 @@ const handleLogout = async () => {
 
         <div class="flex justify-center">
           <div class="flex flex-wrap items-center justify-center gap-2 rounded-[28px] border border-[#1A2A4F]/10 bg-[#FFF2EF] p-2">
-            <RouterLink to="/game" class="rounded-full px-4 py-2 text-sm font-bold text-[#1A2A4F] transition hover:bg-white">
+            <RouterLink to="/stage" class="rounded-full px-4 py-2 text-sm font-bold text-[#1A2A4F] transition hover:bg-white">
               스테이지
             </RouterLink>
             <RouterLink to="/progress" class="rounded-full px-4 py-2 text-sm font-bold text-[#1A2A4F] transition hover:bg-white">

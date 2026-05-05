@@ -8,7 +8,7 @@ export interface CommunityUser {
 export interface CommunityPost {
   uuid: string
   title: string
-  content: string
+  content?: string
   created_at: string
   user?: CommunityUser
   member?: CommunityUser
@@ -26,7 +26,14 @@ export interface CommunityAnswer {
 }
 
 export const communityPostAPI = {
-  getPostList: async (params?: { page?: number; size?: number; sort?: string; is_asc?: boolean }) => {
+  getPostList: async (params?: {
+    page?: number
+    size?: number
+    sort?: string
+    is_asc?: boolean
+    searchBy?: 'title' | 'content' | 'nickname'
+    keyword?: string
+  }) => {
     const response = await api.get<{ results: CommunityPost[] }>('/questions', { params })
     return response.data
   },

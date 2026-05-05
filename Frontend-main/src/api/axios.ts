@@ -1,4 +1,5 @@
 import axios from 'axios'
+import { syncUnityAccessToken } from '../utils/unityAuthBridge'
 
 const baseURL = import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:8080/api/v1'
 const GUEST_PATHS = new Set(['/', '/login', '/signup'])
@@ -50,12 +51,14 @@ api.interceptors.response.use(
 
         const nextToken = refreshResponse.data.accessToken
         localStorage.setItem('accessToken', nextToken)
+        syncUnityAccessToken(nextToken)
         originalRequest.headers.Authorization = `Bearer ${nextToken}`
         return api(originalRequest)
       } catch (refreshError) {
         localStorage.removeItem('accessToken')
         localStorage.removeItem('authUserUuid')
         localStorage.removeItem('authUserId')
+        syncUnityAccessToken(null)
 
         const currentPath = typeof window !== 'undefined' ? window.location.pathname : null
         if (currentPath && !GUEST_PATHS.has(currentPath)) {

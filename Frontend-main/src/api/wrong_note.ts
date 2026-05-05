@@ -16,14 +16,44 @@ export interface WrongNote {
 const mapWrongNote = (note: Record<string, unknown>): WrongNote => ({
   uuid: String(note.uuid ?? note.id ?? ''),
   id: typeof note.id === 'number' ? note.id : undefined,
-  problem_id: typeof note.problemId === 'number' ? note.problemId : undefined,
-  user_uuid: typeof note.userUuid === 'string' ? note.userUuid : undefined,
-  wrong_answer: typeof note.wrongAnswer === 'string' ? note.wrongAnswer : '',
+  problem_id:
+    typeof note.problemId === 'number'
+      ? note.problemId
+      : typeof note.problem_id === 'number'
+        ? note.problem_id
+        : undefined,
+  user_uuid:
+    typeof note.userUuid === 'string'
+      ? note.userUuid
+      : typeof note.user_uuid === 'string'
+        ? note.user_uuid
+        : undefined,
+  wrong_answer:
+    typeof note.wrongAnswer === 'string'
+      ? note.wrongAnswer
+      : typeof note.wrong_answer === 'string'
+        ? note.wrong_answer
+        : '',
   feedback: typeof note.feedback === 'string' ? note.feedback : undefined,
-  is_reviewed: Boolean(note.isReviewed),
-  last_submitted_at: typeof note.lastSubmittedAt === 'string' ? note.lastSubmittedAt : undefined,
-  created_at: typeof note.createdAt === 'string' ? note.createdAt : '',
-  updated_at: typeof note.updatedAt === 'string' ? note.updatedAt : undefined,
+  is_reviewed: typeof note.isReviewed === 'boolean' ? note.isReviewed : Boolean(note.is_reviewed),
+  last_submitted_at:
+    typeof note.lastSubmittedAt === 'string'
+      ? note.lastSubmittedAt
+      : typeof note.last_submitted_at === 'string'
+        ? note.last_submitted_at
+        : undefined,
+  created_at:
+    typeof note.createdAt === 'string'
+      ? note.createdAt
+      : typeof note.created_at === 'string'
+        ? note.created_at
+        : '',
+  updated_at:
+    typeof note.updatedAt === 'string'
+      ? note.updatedAt
+      : typeof note.updated_at === 'string'
+        ? note.updated_at
+        : undefined,
 })
 
 export const wrongNoteAPI = {
@@ -47,5 +77,8 @@ export const wrongNoteAPI = {
   },
   deleteWrongNote: async (uuid: string) => {
     await api.delete(`/wrong-notes/${uuid}`)
+  },
+  requestAiFeedback: async (uuid: string) => {
+    await api.put(`/wrong-notes/${uuid}/ai-feedback`)
   },
 }
