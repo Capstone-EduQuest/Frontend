@@ -36,6 +36,7 @@ const router = createRouter({
     { path: '/incorrect-note', component: IncorrectNotePage, meta: { requiresAuth: true } },
     { path: '/bookmark', component: BookmarkPage, meta: { requiresAuth: true } },
     { path: '/stage', component: StagePage, meta: { requiresAuth: true } },
+    { path: '/unity', redirect: '/game' },
     {
       path: '/admin',
       component: AdminPage,

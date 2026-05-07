@@ -135,26 +135,41 @@ const restoreAuth = async (pathname?: string) => {
 
   restorePromise = (async () => {
     try {
+      const storedToken = typeof window !== 'undefined' ? localStorage.getItem('accessToken') : null
+
+      // Avoid re-validating the same healthy session on every route change.
+      if (
+        state.isAuthReady &&
+        state.user &&
+        state.accessToken &&
+        storedToken &&
+        state.accessToken === storedToken &&
+        !isPreviewEnabled()
+      ) {
+        return
+      }
+
       if (isPreviewEnabled()) {
         applyPreviewSession()
         return
       }
-
-      const storedToken = typeof window !== 'undefined' ? localStorage.getItem('accessToken') : null
 
       if (storedToken) {
         try {
           await applyProfile(storedToken)
           return
         } catch {
-          clearAuth()
+          // Fall through to refresh before clearing auth.
         }
       }
 
       const refreshResponse = await authAPI.refresh()
       if (refreshResponse.accessToken) {
         await applyProfile(refreshResponse.accessToken)
+        return
       }
+
+      clearAuth()
     } catch {
       clearAuth()
     } finally {

@@ -93,7 +93,7 @@ onMounted(async () => {
     />
 
     <main class="mx-auto max-w-6xl px-4 py-8 sm:px-6 lg:px-8">
-      <div class="rounded-[30px] border-4 border-[#1A2A4F] bg-white p-6 shadow-[8px_8px_0_0_rgba(26,42,79,0.14)]">
+      <div class="luxe-panel p-6">
         <h2 class="text-2xl font-black text-[#1A2A4F]">학습 로드맵</h2>
         <p class="mt-2 text-sm leading-6 text-slate-600">
           스테이지별 제목, 진행률, 보상 코인을 확인하면서 전체 커리큘럼 흐름을 둘러볼 수 있습니다.
@@ -102,9 +102,9 @@ onMounted(async () => {
 
       <div
         v-if="isLoading"
-        class="mt-6 rounded-[30px] border-4 border-[#1A2A4F] bg-white p-10 text-center shadow-[8px_8px_0_0_rgba(26,42,79,0.14)]"
+        class="luxe-panel mt-6 p-10 text-center"
       >
-        <div class="mx-auto mb-4 h-14 w-14 animate-spin rounded-full border-4 border-[#FFDBB6] border-b-[#1A2A4F]" />
+        <div class="mx-auto mb-4 h-14 w-14 animate-spin rounded-full border-2 border-[#FFDBB6] border-b-[#1A2A4F]" />
         <p class="font-bold text-[#1A2A4F]">스테이지를 불러오는 중입니다.</p>
       </div>
 
@@ -112,27 +112,27 @@ onMounted(async () => {
         <article
           v-for="stage in stages"
           :key="stage.uuid"
-          class="rounded-[24px] border-4 border-[#1A2A4F] bg-white p-6 shadow-[8px_8px_0_0_rgba(26,42,79,0.14)]"
+          class="luxe-card p-6"
         >
           <div class="flex items-start justify-between gap-4">
             <h3 class="text-2xl font-black text-[#1A2A4F]">{{ stage.title }}</h3>
             <span
               :class="getStageStatus(stage.number).tone"
-              class="shrink-0 rounded-full border-2 border-[#1A2A4F] px-3 py-1 text-xs font-black text-[#1A2A4F]"
+              class="luxe-pill shrink-0 px-3 py-1 text-xs font-medium text-[#1A2A4F]"
             >
               {{ getStageStatus(stage.number).label }}
             </span>
           </div>
 
-          <div class="mt-5 rounded-[20px] border-2 border-[#1A2A4F] bg-[#FFF2EF] p-4">
+          <div class="mt-5 rounded-[20px] border border-[#1A2A4F]/10 bg-[#FFF8F4] p-4">
             <div class="flex items-center justify-between text-sm font-bold text-[#1A2A4F]">
               <span>진행률</span>
               <span>{{ getStageProgress(stage.number).completed }} / {{ getStageProgress(stage.number).total }}</span>
             </div>
 
-            <div v-if="getStageProgress(stage.number).total > 0" class="mt-3 h-3 rounded-full border-2 border-[#1A2A4F] bg-white p-[2px]">
+            <div v-if="getStageProgress(stage.number).total > 0" class="mt-3 h-3 rounded-full bg-[#F3E7E1]">
               <div
-                class="h-full rounded-full bg-[#F7A5A5]"
+                class="h-3 rounded-full bg-[linear-gradient(90deg,#ffcfaa,#f3ab9b)]"
                 :style="{ width: `${(getStageProgress(stage.number).completed / getStageProgress(stage.number).total) * 100}%` }"
               />
             </div>
@@ -140,9 +140,9 @@ onMounted(async () => {
             <p v-else class="mt-3 text-xs font-bold text-slate-500">아직 집계된 진행 정보가 없습니다.</p>
           </div>
 
-          <div class="mt-4 flex items-center justify-between rounded-[20px] border-2 border-[#1A2A4F] bg-[#FFDBB6] p-4">
-            <span class="text-sm font-black text-[#1A2A4F]">보상 코인</span>
-            <span class="text-lg font-black text-[#1A2A4F]">{{ stage.reward ?? 0 }}</span>
+          <div class="mt-4 flex items-center justify-between rounded-[20px] border border-[#1A2A4F]/10 bg-[#FFF6EC] p-4">
+            <span class="text-sm font-medium text-[#1A2A4F]">보상 코인</span>
+            <span class="text-lg font-semibold text-[#1A2A4F]">{{ stage.reward ?? 0 }}</span>
           </div>
         </article>
       </div>

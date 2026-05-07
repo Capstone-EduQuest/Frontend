@@ -52,7 +52,7 @@ onMounted(async () => {
       </div>
 
       <div v-else class="space-y-5">
-        <div class="rounded-[30px] border border-[#1A2A4F]/10 bg-white p-6 shadow-[0_18px_44px_rgba(26,42,79,0.08)]">
+        <div class="luxe-panel p-6">
           <h2 class="text-2xl font-black text-[#1A2A4F]">한눈에 보는 내 기록</h2>
           <p class="mt-2 text-sm leading-6 text-slate-600">스테이지마다 얼마나 풀었는지 확인하고, 원하는 곳부터 다시 시작할 수 있어요.</p>
         </div>
@@ -60,12 +60,12 @@ onMounted(async () => {
         <div
           v-for="stage in normalizedStages"
           :key="stage.uuid"
-          class="rounded-[30px] border bg-white p-6 shadow-[0_18px_44px_rgba(26,42,79,0.08)]"
+          class="luxe-card p-6"
           :class="stage.isCleared ? 'border-[#FFDBB6]' : 'border-[#F7A5A5]'"
         >
           <div class="flex flex-col gap-5 md:flex-row md:items-center md:justify-between">
             <div class="flex items-center gap-5">
-              <div class="flex h-16 w-16 items-center justify-center rounded-2xl text-2xl font-black" :class="stage.isCleared ? 'bg-[#FFDBB6] text-[#1A2A4F]' : 'bg-[#F7A5A5] text-[#1A2A4F]'">
+              <div class="flex h-16 w-16 items-center justify-center rounded-2xl text-2xl font-semibold" :class="stage.isCleared ? 'bg-[#FFF6EC] text-[#1A2A4F]' : 'bg-[#FFF1EF] text-[#1A2A4F]'">
                 {{ stage.number }}
               </div>
               <div>
@@ -80,16 +80,16 @@ onMounted(async () => {
                   <span>진행률</span>
                   <span>{{ stage.clearCount }} / {{ stage.totalCount }}</span>
                 </div>
-                <div class="h-3 rounded-full bg-[#FFF2EF]">
+                <div class="h-3 rounded-full bg-[#F3E7E1]">
                   <div
-                    class="h-3 rounded-full bg-[#F7A5A5]"
+                    class="h-3 rounded-full bg-[linear-gradient(90deg,#ffcfaa,#f3ab9b)]"
                     :style="{ width: `${stage.totalCount ? (stage.clearCount / stage.totalCount) * 100 : 0}%` }"
                   />
                 </div>
               </div>
               <button
                 type="button"
-                class="rounded-full bg-[#1A2A4F] px-6 py-3 font-black text-[#FFF2EF] transition hover:bg-[#233868]"
+                class="luxe-button-accent rounded-full px-6 py-3 font-medium transition hover:translate-y-[-1px]"
                 @click="router.push(`/game?stage=${stage.number}`)"
               >
                 {{ stage.isCleared ? '다시 도전하기' : '이어서 풀기' }}

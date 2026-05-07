@@ -67,10 +67,27 @@ export interface ProgressResponse {
   }[]
 }
 
+type MaybePagedResponse<T> =
+  | PagedResponse<T>
+  | T[]
+
+const normalizePagedResponse = <T>(data: MaybePagedResponse<T>) => {
+  if (Array.isArray(data)) {
+    return {
+      results: data,
+    }
+  }
+
+  return {
+    ...data,
+    results: Array.isArray(data.results) ? data.results : [],
+  }
+}
+
 export const stageAPI = {
   getStageList: async (params?: { page?: number; size?: number; sort?: string; is_asc?: boolean }) => {
-    const response = await api.get<PagedResponse<Stage>>('/stages', { params })
-    return response.data
+    const response = await api.get<MaybePagedResponse<Stage>>('/stages', { params })
+    return normalizePagedResponse(response.data)
   },
   getStage: async (uuid: string) => {
     const response = await api.get<Stage>(`/stages/${uuid}`)
@@ -90,14 +107,14 @@ export const stageAPI = {
 
 export const problemAPI = {
   getProblemList: async (params?: { page?: number; size?: number; sort?: string; is_asc?: boolean }) => {
-    const response = await api.get<PagedResponse<ProblemDetail>>('/problems', { params })
-    return response.data
+    const response = await api.get<MaybePagedResponse<ProblemDetail>>('/problems', { params })
+    return normalizePagedResponse(response.data)
   },
   getProblemsByStage: async (stageNumber: number) => {
-    const response = await api.get<ProblemDetail[]>('/problems', {
+    const response = await api.get<MaybePagedResponse<ProblemDetail>>('/problems', {
       params: { stage_number: stageNumber },
     })
-    return response.data
+    return normalizePagedResponse(response.data).results
   },
   getProblem: async (uuid: string) => {
     const response = await api.get<ProblemDetail>(`/problems/${uuid}`)

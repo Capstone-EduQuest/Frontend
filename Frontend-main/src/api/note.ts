@@ -9,6 +9,10 @@ export interface Note {
   updated_at?: string
 }
 
+type NoteListResponse =
+  | { results: Record<string, unknown>[] }
+  | Record<string, unknown>[]
+
 const mapNote = (note: Record<string, unknown>): Note => ({
   uuid: typeof note.uuid === 'string' ? note.uuid : undefined,
   title: typeof note.title === 'string' ? note.title : '',
@@ -37,10 +41,11 @@ export const noteAPI = {
     searchBy?: 'title' | 'content'
     keyword?: string
   }) => {
-    const response = await api.get<{ results: Record<string, unknown>[] }>('/notes', { params })
+    const response = await api.get<NoteListResponse>('/notes', { params })
+    const results = Array.isArray(response.data) ? response.data : response.data.results ?? []
     return {
-      ...response.data,
-      results: response.data.results.map(mapNote),
+      ...(Array.isArray(response.data) ? {} : response.data),
+      results: results.map(mapNote),
     }
   },
   getNote: async (uuid: string) => {

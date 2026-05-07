@@ -13,6 +13,10 @@ export interface WrongNote {
   updated_at?: string
 }
 
+type WrongNoteListResponse =
+  | { results: Record<string, unknown>[] }
+  | Record<string, unknown>[]
+
 const mapWrongNote = (note: Record<string, unknown>): WrongNote => ({
   uuid: String(note.uuid ?? note.id ?? ''),
   id: typeof note.id === 'number' ? note.id : undefined,
@@ -62,17 +66,19 @@ export const wrongNoteAPI = {
     return mapWrongNote(response.data)
   },
   getWrongNoteList: async (params?: { page?: number; size?: number; sort?: string; is_asc?: boolean }) => {
-    const response = await api.get<{ results: Record<string, unknown>[] }>('/wrong-notes', { params })
+    const response = await api.get<WrongNoteListResponse>('/wrong-notes', { params })
+    const results = Array.isArray(response.data) ? response.data : response.data.results ?? []
     return {
-      ...response.data,
-      results: response.data.results.map(mapWrongNote),
+      ...(Array.isArray(response.data) ? {} : response.data),
+      results: results.map(mapWrongNote),
     }
   },
   getUserWrongNotes: async (userUuid: string, params?: { page?: number; size?: number; sort?: string; is_asc?: boolean }) => {
-    const response = await api.get<{ results: Record<string, unknown>[] }>(`/wrong-notes/users/${userUuid}`, { params })
+    const response = await api.get<WrongNoteListResponse>(`/wrong-notes/users/${userUuid}`, { params })
+    const results = Array.isArray(response.data) ? response.data : response.data.results ?? []
     return {
-      ...response.data,
-      results: response.data.results.map(mapWrongNote),
+      ...(Array.isArray(response.data) ? {} : response.data),
+      results: results.map(mapWrongNote),
     }
   },
   deleteWrongNote: async (uuid: string) => {

@@ -25,6 +25,10 @@ export interface CommunityAnswer {
   member?: CommunityUser
 }
 
+type CommunityPostListResponse =
+  | { results: CommunityPost[] }
+  | CommunityPost[]
+
 export const communityPostAPI = {
   getPostList: async (params?: {
     page?: number
@@ -34,8 +38,9 @@ export const communityPostAPI = {
     searchBy?: 'title' | 'content' | 'nickname'
     keyword?: string
   }) => {
-    const response = await api.get<{ results: CommunityPost[] }>('/questions', { params })
-    return response.data
+    const response = await api.get<CommunityPostListResponse>('/questions', { params })
+    const results = Array.isArray(response.data) ? response.data : response.data.results ?? []
+    return { results }
   },
   getPost: async (uuid: string) => {
     const response = await api.get<CommunityPost>(`/questions/${uuid}`)
@@ -56,7 +61,7 @@ export const communityAnswerAPI = {
     return response.data
   },
   createAnswer: async (questionUuid: string, data: { content: string }) => {
-    const response = await api.post(`/question/${questionUuid}/answers`, data)
+    const response = await api.post(`/questions/${questionUuid}/answers`, data)
     return response.data
   },
   deleteAnswer: async (uuid: string) => {

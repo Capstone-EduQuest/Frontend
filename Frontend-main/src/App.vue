@@ -7,7 +7,10 @@ import { useAuthStore } from './store/auth'
 const route = useRoute()
 const auth = useAuthStore()
 const showFloatingNote = computed(
-  () => auth.state.isLoggedIn && !['/login', '/signup'].includes(route.path)
+  () =>
+    auth.state.isLoggedIn &&
+    !['/login', '/signup', '/unity'].includes(route.path) &&
+    !(route.path === '/game' && !route.query.stage && !route.query.problem)
 )
 
 watch(

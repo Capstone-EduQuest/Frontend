@@ -38,6 +38,20 @@ export interface UserListItem {
   nickname: string
 }
 
+type UserListResponse =
+  | {
+      results: UserListItem[]
+      page?: number
+      size?: number
+      sort?: string
+      is_asc?: boolean
+    }
+  | UserListItem[]
+
+type RoleListResponse =
+  | { results: { uuid: string; name: string }[] }
+  | { uuid: string; name: string }[]
+
 export const authAPI = {
   signIn: async (data: LoginRequest): Promise<LoginResponse> => {
     const response = await api.post<LoginResponse>('/auth/sign-in', data, { skipAuth: true })
@@ -70,13 +84,16 @@ export const userAPI = {
     return response.data
   },
   getUserList: async (params?: { page?: number; size?: number; sort?: string; is_asc?: boolean }) => {
-    const response = await api.get('/users', { params })
-    return response.data as {
-      results: UserListItem[]
-      page: number
-      size: number
-      sort: string
-      is_asc: boolean
+    const response = await api.get<UserListResponse>('/users', { params })
+    if (Array.isArray(response.data)) {
+      return {
+        results: response.data,
+      }
+    }
+
+    return {
+      ...response.data,
+      results: Array.isArray(response.data.results) ? response.data.results : [],
     }
   },
   getUuidById: async (id: string): Promise<{ uuid: string }> => {
@@ -93,8 +110,8 @@ export const userAPI = {
     await api.put(`/users/${uuid}/lock`)
   },
   getRoles: async (): Promise<{ uuid: string; name: string }[]> => {
-    const response = await api.get<{ results: { uuid: string; name: string }[] }>('/users/roles')
-    return response.data.results
+    const response = await api.get<RoleListResponse>('/users/roles')
+    return Array.isArray(response.data) ? response.data : response.data.results ?? []
   },
   deleteUser: async (uuid: string): Promise<void> => {
     await api.delete(`/users/${uuid}`)

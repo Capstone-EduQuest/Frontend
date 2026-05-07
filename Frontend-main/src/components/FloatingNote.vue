@@ -5,8 +5,17 @@ import { useAuthStore } from '../store/auth'
 
 type EditorNote = Note & { clientId: string }
 
+const props = withDefaults(
+  defineProps<{
+    mode?: 'overlay' | 'panel'
+  }>(),
+  {
+    mode: 'overlay',
+  }
+)
+
 const auth = useAuthStore()
-const isOpen = ref(false)
+const isOpen = ref(props.mode === 'panel')
 const notes = ref<EditorNote[]>([])
 const selectedClientId = ref('')
 const titleInput = ref('')
@@ -15,9 +24,10 @@ const isLoading = ref(false)
 const isSyncingInputs = ref(false)
 const syncError = ref('')
 const saveTimers = new Map<string, ReturnType<typeof setTimeout>>()
-const DEFAULT_NOTE_TITLE = '새 메모'
+const DEFAULT_NOTE_TITLE = '빠른 메모'
 const DEFAULT_NOTE_CONTENT = '메모 내용을 입력해 주세요.'
 
+const isPanelMode = computed(() => props.mode === 'panel')
 const activeNote = computed(
   () => notes.value.find((note) => note.clientId === selectedClientId.value) ?? null
 )
@@ -201,19 +211,30 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-  <div class="fixed bottom-6 right-6 z-50 flex flex-col items-end gap-3">
+  <div
+    :class="
+      isPanelMode
+        ? 'luxe-panel flex h-full min-h-0 flex-col p-5'
+        : 'fixed bottom-6 right-6 z-50 flex flex-col items-end gap-3'
+    "
+  >
     <div
       v-if="isOpen"
-      class="flex h-[34rem] max-h-[calc(100vh-4rem)] w-[26rem] max-w-[92vw] flex-col rounded-[28px] border-4 border-[#1A2A4F] bg-white p-4 shadow-[8px_8px_0_0_rgba(26,42,79,1)]"
+      :class="
+        isPanelMode
+          ? 'flex min-h-0 flex-1 flex-col'
+          : 'luxe-panel flex h-[34rem] max-h-[calc(100vh-4rem)] w-[26rem] max-w-[92vw] flex-col p-5'
+      "
     >
       <div class="mb-4 flex items-center justify-between">
         <div>
-          <p class="text-xs font-black uppercase tracking-[0.28em] text-[#1A2A4F]/55">Quick Memo</p>
-          <h2 class="mt-1 text-lg font-black text-[#1A2A4F]">빠른 메모</h2>
+          <p class="text-[11px] font-semibold uppercase tracking-[0.24em] text-[#1A2A4F]/45">Quick Memo</p>
+          <h2 class="mt-1 text-lg font-semibold text-[#1A2A4F]">빠른 메모</h2>
         </div>
         <button
+          v-if="!isPanelMode"
           type="button"
-          class="rounded-full border-2 border-[#1A2A4F] bg-[#FFF2EF] px-3 py-1 text-sm font-black text-[#1A2A4F]"
+          class="luxe-button-soft rounded-full px-3 py-1.5 text-sm font-medium"
           @click="isOpen = false"
         >
           닫기
@@ -225,8 +246,8 @@ onBeforeUnmount(() => {
           v-for="note in notes"
           :key="note.clientId"
           type="button"
-          class="shrink-0 rounded-[16px] border-2 px-3 py-2 text-sm font-black transition"
-          :class="note.clientId === selectedClientId ? 'border-[#1A2A4F] bg-[#1A2A4F] text-white' : 'border-[#1A2A4F] bg-[#FFF2EF] text-[#1A2A4F] hover:bg-[#FFDBB6]'"
+          class="shrink-0 rounded-[16px] border px-3 py-2 text-sm font-medium transition"
+          :class="note.clientId === selectedClientId ? 'border-[#1A2A4F]/18 bg-[#1A2A4F] text-white shadow-[0_10px_20px_rgba(26,42,79,0.16)]' : 'border-[#1A2A4F]/10 bg-[#FFF8F4] text-[#1A2A4F] hover:bg-white'"
           @click="selectNote(note.clientId)"
         >
           {{ note.title || '제목 없음' }}
@@ -234,7 +255,7 @@ onBeforeUnmount(() => {
 
         <button
           type="button"
-          class="shrink-0 rounded-[16px] border-2 border-dashed border-[#1A2A4F] bg-white px-3 py-2 text-sm font-black text-[#1A2A4F] hover:bg-[#FFDBB6]"
+          class="rounded-[16px] border border-dashed border-[#1A2A4F]/18 bg-white px-3 py-2 text-sm font-medium text-[#1A2A4F] hover:bg-[#FFF8F4]"
           @click="handleAddNote"
         >
           + 새 메모
@@ -243,7 +264,7 @@ onBeforeUnmount(() => {
 
       <div
         v-if="isLoading"
-        class="flex flex-1 items-center justify-center rounded-[24px] border-2 border-[#1A2A4F] bg-[#FFF2EF] text-sm font-bold text-[#1A2A4F]/70"
+        class="luxe-card-soft flex flex-1 items-center justify-center p-6 text-sm font-medium text-[#1A2A4F]/60"
       >
         메모를 불러오는 중입니다.
       </div>
@@ -253,56 +274,57 @@ onBeforeUnmount(() => {
         class="flex min-h-0 flex-1 flex-col gap-3"
       >
         <div>
-          <label class="mb-2 block text-xs font-black uppercase tracking-[0.2em] text-[#1A2A4F]/55">Title</label>
+          <label class="mb-2 block text-[11px] font-semibold uppercase tracking-[0.18em] text-[#1A2A4F]/45">Title</label>
           <input
             v-model="titleInput"
             type="text"
             placeholder="메모 제목을 입력해 주세요"
-            class="w-full rounded-[18px] border-2 border-[#1A2A4F] bg-[#FFF2EF] px-4 py-3 text-base font-black text-[#1A2A4F] outline-none focus:bg-white"
+            class="luxe-input w-full rounded-[18px] px-4 py-3 text-base font-semibold text-[#1A2A4F]"
           >
         </div>
 
         <div class="flex min-h-0 flex-1 flex-col">
-          <label class="mb-2 block text-xs font-black uppercase tracking-[0.2em] text-[#1A2A4F]/55">Content</label>
+          <label class="mb-2 block text-[11px] font-semibold uppercase tracking-[0.18em] text-[#1A2A4F]/45">Content</label>
           <textarea
             v-model="contentInput"
             placeholder="메모 내용을 입력해 주세요"
-            class="min-h-0 flex-1 resize-none rounded-[22px] border-2 border-[#1A2A4F] bg-[#FFF2EF] p-4 text-sm font-medium text-[#1A2A4F] outline-none focus:bg-white"
+            class="luxe-input min-h-0 flex-1 resize-none rounded-[22px] p-4 text-sm font-medium text-[#1A2A4F]"
           />
         </div>
 
         <div class="flex justify-between gap-3">
           <button
             type="button"
-            class="rounded-[16px] border-2 border-[#1A2A4F] bg-[#F7A5A5] px-4 py-2 text-sm font-black text-[#7A1D1D] shadow-[4px_4px_0_0_rgba(26,42,79,1)]"
+            class="rounded-[16px] border border-[#d8b2b2] bg-[#fff3f1] px-4 py-2 text-sm font-medium text-[#9d5252]"
             @click="handleDeleteNote"
           >
             삭제
           </button>
-          <p class="self-center text-xs font-bold text-[#1A2A4F]/55">입력 내용은 자동 저장됩니다.</p>
+          <p class="self-center text-xs font-medium text-[#1A2A4F]/45">입력 내용은 자동 저장됩니다.</p>
         </div>
       </div>
 
       <div
         v-else
-        class="flex flex-1 flex-col items-center justify-center rounded-[24px] border-2 border-[#1A2A4F] bg-[#FFF2EF] p-6 text-center"
+        class="luxe-card-soft flex flex-1 flex-col items-center justify-center p-6 text-center"
       >
-        <p class="text-sm font-bold text-[#1A2A4F]/70">아직 메모가 없습니다.</p>
+        <p class="text-sm font-medium text-[#1A2A4F]/65">아직 메모가 없습니다.</p>
         <button
           type="button"
-          class="mt-4 rounded-[16px] border-2 border-[#1A2A4F] bg-[#FFDBB6] px-4 py-2 text-sm font-black text-[#1A2A4F] shadow-[4px_4px_0_0_rgba(26,42,79,1)]"
+          class="luxe-button-accent mt-4 rounded-[16px] px-4 py-2 text-sm font-medium"
           @click="handleAddNote"
         >
           첫 메모 만들기
         </button>
       </div>
 
-      <p v-if="syncError" class="mt-3 text-xs font-bold text-red-600">{{ syncError }}</p>
+      <p v-if="syncError" class="mt-3 text-xs font-medium text-red-600">{{ syncError }}</p>
     </div>
 
     <button
+      v-if="!isPanelMode"
       type="button"
-      class="inline-flex items-center justify-center rounded-full border-2 border-[#1A2A4F] bg-[#F7A5A5] px-6 py-3 text-sm font-black text-[#1A2A4F] shadow-[4px_4px_0_0_rgba(26,42,79,1)] transition-transform hover:-translate-y-1"
+      class="luxe-button-accent inline-flex items-center justify-center rounded-full px-6 py-3 text-sm font-medium transition hover:translate-y-[-1px]"
       @click="isOpen = !isOpen"
     >
       {{ isOpen ? '메모 닫기' : '빠른 메모' }}

@@ -20,7 +20,7 @@ const loadWrongNotes = async () => {
   }
 
   const response = await wrongNoteAPI.getUserWrongNotes(auth.state.user.uuid, {
-    page: 0,
+    page: 1,
     size: 50,
     sort: 'created_at',
     is_asc: false,
@@ -41,7 +41,9 @@ onMounted(async () => {
 })
 
 const requestAIFeedback = async (note: WrongNote) => {
-  if (!note.uuid) return
+  if (!note.uuid) {
+    return
+  }
 
   loadingFeedback.value[note.uuid] = true
 
@@ -60,17 +62,17 @@ const requestAIFeedback = async (note: WrongNote) => {
 </script>
 
 <template>
-  <div class="min-h-screen bg-[#FFF2EF] font-sans">
+  <div class="min-h-screen bg-[#FFF2EF]">
     <PageHeader
       title="오답노트"
       subtitle="틀린 답안과 AI 피드백을 다시 확인하면서 취약한 부분을 복습해 보세요."
-      back-link="/"
+      back-link="/home"
     />
 
     <main class="mx-auto max-w-6xl px-4 py-8 sm:px-6 lg:px-8">
       <div
         v-if="error"
-        class="rounded-[28px] border-4 border-[#F7A5A5] bg-white p-6 font-bold text-[#1A2A4F] shadow-[8px_8px_0_0_rgba(26,42,79,0.1)]"
+        class="luxe-card mb-6 p-6 text-sm font-medium text-[#1A2A4F]"
       >
         {{ error }}
       </div>
@@ -79,32 +81,32 @@ const requestAIFeedback = async (note: WrongNote) => {
         <article
           v-for="note in incorrectNotes"
           :key="note.uuid"
-          class="flex flex-col rounded-[32px] border-4 border-[#1A2A4F] bg-white p-6 shadow-[8px_8px_0_0_rgba(26,42,79,0.14)] transition-transform hover:-translate-y-1"
+          class="luxe-card flex flex-col p-6 transition duration-300 hover:translate-y-[-2px]"
         >
           <div class="flex items-center justify-between gap-4">
             <h2 class="text-2xl font-black text-[#1A2A4F]">
               {{ note.problem_id ? `Problem ${note.problem_id} 오답` : '오답 기록' }}
             </h2>
             <span
-              class="rounded-full border-2 border-[#1A2A4F] bg-[#FFF2EF] px-3 py-1 text-xs font-black tracking-widest text-[#1A2A4F]"
+              class="luxe-pill px-3 py-1 text-xs font-medium tracking-[0.14em] text-[#1A2A4F]"
             >
               {{ note.is_reviewed ? 'REVIEWED' : 'PENDING' }}
             </span>
           </div>
 
-          <div class="mt-4 flex flex-1 flex-col space-y-4">
-            <div class="whitespace-pre-wrap rounded-[24px] border-4 border-[#1A2A4F] bg-[#1A2A4F] p-4 font-mono text-sm text-gray-100">
+          <div class="mt-4 flex flex-1 flex-col gap-4">
+            <div class="rounded-[24px] bg-[#1A2A4F] p-4 font-mono text-sm text-gray-100">
               {{ note.wrong_answer || '제출한 코드가 없습니다.' }}
             </div>
 
-            <div class="flex flex-1 flex-col rounded-[24px] border-4 border-[#1A2A4F] bg-[#FFF2EF] p-4 text-sm text-[#1A2A4F]">
-              <div class="mb-3 flex items-center justify-between">
+            <div class="flex flex-1 flex-col rounded-[24px] border border-[#1A2A4F]/10 bg-[#FFF8F4] p-4 text-sm text-[#1A2A4F]">
+              <div class="mb-3 flex items-center justify-between gap-3">
                 <p class="text-base font-black">AI 튜터</p>
 
                 <button
                   v-if="!note.feedback"
                   :disabled="loadingFeedback[note.uuid]"
-                  class="rounded-full border-2 border-[#1A2A4F] bg-[#FFDBB6] px-4 py-1.5 text-xs font-black text-[#1A2A4F] transition hover:-translate-y-0.5 active:translate-y-0 disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:translate-y-0"
+                  class="luxe-button-accent cursor-pointer rounded-full px-4 py-2 text-xs font-medium disabled:cursor-not-allowed disabled:opacity-60"
                   @click="requestAIFeedback(note)"
                 >
                   <span v-if="loadingFeedback[note.uuid]" class="flex items-center gap-2">
@@ -121,11 +123,11 @@ const requestAIFeedback = async (note: WrongNote) => {
 
               <div
                 v-else-if="loadingFeedback[note.uuid]"
-                class="flex flex-1 items-center justify-center py-4 text-center font-bold text-[#1A2A4F]/60 animate-pulse"
+                class="flex flex-1 items-center justify-center py-4 text-center font-medium text-[#1A2A4F]/60 animate-pulse"
               >
                 AI 튜터가 오답을 분석하고 있습니다...
               </div>
-              <div v-else class="flex flex-1 items-center justify-center py-4 text-center font-bold text-[#1A2A4F]/40">
+              <div v-else class="flex flex-1 items-center justify-center py-4 text-center font-medium text-[#1A2A4F]/40">
                 버튼을 눌러 AI 피드백을 받아 보세요.
               </div>
             </div>
@@ -133,12 +135,12 @@ const requestAIFeedback = async (note: WrongNote) => {
             <div class="flex items-end justify-between gap-3">
               <button
                 v-if="note.problem_id"
-                class="shrink-0 rounded-[14px] border-2 border-[#1A2A4F] bg-[#F7A5A5] px-4 py-2 text-sm font-black text-[#1A2A4F] transition hover:-translate-y-0.5 active:translate-y-0"
+                class="luxe-button-soft cursor-pointer rounded-full px-4 py-2 text-sm font-medium"
                 @click="router.push('/game?problem=' + note.problem_id)"
               >
-                🔄 다시 풀기
+                다시 풀기
               </button>
-              <p class="ml-auto text-right text-xs font-bold text-slate-400">
+              <p class="ml-auto text-right text-xs font-medium text-slate-400">
                 마지막 시도: {{ note.last_submitted_at ?? note.created_at ?? '-' }}
               </p>
             </div>
