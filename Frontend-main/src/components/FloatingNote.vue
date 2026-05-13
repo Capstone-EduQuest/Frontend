@@ -73,7 +73,7 @@ const loadNotes = async () => {
 
   try {
     const response = await noteAPI.getNoteList({
-      page: 1,
+      page: 0,
       size: 30,
       sort: 'updated_at',
       is_asc: false,

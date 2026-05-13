@@ -39,7 +39,7 @@ const fetchQuestions = async () => {
 
   try {
     const response = await communityPostAPI.getPostList({
-      page: 1,
+      page: 0,
       size: 50,
       sort: 'created_at',
       is_asc: false,
@@ -83,7 +83,7 @@ const handleQuestionClick = async (question: CommunityPost) => {
 
   try {
     selectedQuestion.value = await communityPostAPI.getPost(question.uuid)
-    const response = await communityAnswerAPI.getAnswerList(question.uuid, { page: 1, size: 50, is_asc: true })
+    const response = await communityAnswerAPI.getAnswerList(question.uuid, { page: 0, size: 50, is_asc: true })
     answers.value = response.results
   } catch (error) {
     console.error('failed to load question detail:', error)

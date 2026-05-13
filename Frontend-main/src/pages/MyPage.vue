@@ -21,7 +21,7 @@ const clearedStageCount = ref(0)
 const totalStageCount = ref(0)
 
 const weeklyAttendance = ref([true, true, false, true, false, true, true])
-const attendanceLabels = ['월', '화', '수', '목', '금', '토', '일']
+const attendanceLabels = ['일', '월', '화', '수', '목', '금', '토']
 
 const profileImageUrl = computed(
   () =>
@@ -33,14 +33,25 @@ const profileImageUrl = computed(
 )
 
 const displayName = computed(() => profile.value?.nickname ?? auth.state.user?.nickname ?? '학습자')
-const displayEmail = computed(() => profile.value?.email ?? '이메일 정보 없음')
 const displayUserId = computed(() => profile.value?.user_id ?? profile.value?.id ?? auth.state.user?.user_id ?? '-')
 const displayBirth = computed(() => {
-  if (!profile.value?.birth) {
+  const birth = profile.value?.birth?.trim()
+  if (!birth) {
     return '미등록'
   }
 
-  return new Date(profile.value.birth).toLocaleDateString()
+  const matched = birth.match(/^(\d{4})-(\d{2})-(\d{2})$/)
+  if (matched) {
+    const [, year, month, day] = matched
+    return `${year}.${month}.${day}`
+  }
+
+  const parsed = new Date(birth)
+  if (Number.isNaN(parsed.getTime())) {
+    return birth
+  }
+
+  return parsed.toLocaleDateString('ko-KR')
 })
 
 const totalPoints = computed(() => profile.value?.wallet?.balance ?? profile.value?.point ?? 0)
@@ -78,7 +89,7 @@ onMounted(async () => {
       userAPI.getProfile(auth.state.user.uuid),
       progressAPI.getProgress(auth.state.user.uuid),
       wrongNoteAPI.getUserWrongNotes(auth.state.user.uuid, {
-        page: 1,
+        page: 0,
         size: 100,
         sort: 'created_at',
         is_asc: false,
@@ -107,7 +118,7 @@ onMounted(async () => {
     <Navbar />
     <PageHeader
       title="마이페이지"
-      subtitle="내 학습 현황과 계정 정보를 한눈에 확인해 보세요."
+      subtitle="학습 현황과 계정 정보를 한눈에 확인해 보세요."
       @back="router.back()"
     />
 
@@ -130,7 +141,7 @@ onMounted(async () => {
       <div v-else class="space-y-6">
         <section class="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
           <article class="luxe-card p-5">
-            <p class="text-sm font-medium text-[#1A2A4F]/55">보유 포인트</p>
+            <p class="text-sm font-medium text-[#1A2A4F]/55">보유 코인</p>
             <p class="mt-3 text-3xl font-semibold text-[#1A2A4F]">{{ totalPoints }}</p>
           </article>
           <article class="luxe-card p-5">
@@ -166,10 +177,6 @@ onMounted(async () => {
                 <span class="text-right font-medium text-[#1A2A4F]">{{ displayUserId }}</span>
               </div>
               <div class="luxe-card-soft flex items-center justify-between gap-4 p-4">
-                <span class="text-sm font-medium text-[#1A2A4F]/55">이메일</span>
-                <span class="break-all text-right font-medium text-[#1A2A4F]">{{ displayEmail }}</span>
-              </div>
-              <div class="luxe-card-soft flex items-center justify-between gap-4 p-4">
                 <span class="text-sm font-medium text-[#1A2A4F]/55">생년월일</span>
                 <span class="text-right font-medium text-[#1A2A4F]">{{ displayBirth }}</span>
               </div>
@@ -197,7 +204,7 @@ onMounted(async () => {
                   <div class="mt-4 space-y-4">
                     <div>
                       <div class="mb-2 flex items-center justify-between text-sm font-medium text-[#1A2A4F]">
-                        <span>맞은 문제</span>
+                        <span>맞힌 문제</span>
                         <span>{{ solvedCount }}</span>
                       </div>
                       <div class="h-3 rounded-full bg-[#F3E7E1]">

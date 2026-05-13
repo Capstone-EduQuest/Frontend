@@ -145,13 +145,13 @@ const loadHomeData = async () => {
     userAPI.getProfile(auth.state.user.uuid),
     progressAPI.getProgress(auth.state.user.uuid),
     bookmarkAPI.getBookmarkList(auth.state.user.uuid, {
-      page: 1,
+      page: 0,
       size: 3,
       sort: 'created_at',
       is_asc: false,
     }),
     wrongNoteAPI.getUserWrongNotes(auth.state.user.uuid, {
-      page: 1,
+      page: 0,
       size: 100,
       sort: 'created_at',
       is_asc: false,

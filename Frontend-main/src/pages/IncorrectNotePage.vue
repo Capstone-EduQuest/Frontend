@@ -20,7 +20,7 @@ const loadWrongNotes = async () => {
   }
 
   const response = await wrongNoteAPI.getUserWrongNotes(auth.state.user.uuid, {
-    page: 1,
+    page: 0,
     size: 50,
     sort: 'created_at',
     is_asc: false,

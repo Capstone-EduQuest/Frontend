@@ -70,7 +70,7 @@ export const authAPI = {
     await api.put('/auth/reset-password', data, { skipAuth: true })
   },
   refresh: async (): Promise<LoginResponse> => {
-    const response = await api.post<LoginResponse>('/auth/refresh', {})
+    const response = await api.post<LoginResponse>('/auth/refresh', {}, { skipAuth: true })
     return response.data
   },
   logout: async (): Promise<void> => {

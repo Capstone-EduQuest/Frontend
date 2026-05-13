@@ -24,7 +24,7 @@ const problemQuery = computed(() => String(route.query.problem ?? '').trim())
 const isUnityMode = computed(() => !stageQuery.value && !problemQuery.value)
 
 const loadStages = async () => {
-  const response = await stageAPI.getStageList({ page: 1, size: 100, sort: 'number', is_asc: true })
+  const response = await stageAPI.getStageList({ page: 0, size: 100, sort: 'number', is_asc: true })
   stages.value = response.results
 }
 

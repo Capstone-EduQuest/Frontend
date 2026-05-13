@@ -37,11 +37,21 @@ export const noteAPI = {
     page?: number
     size?: number
     sort?: string
+    isAsc?: boolean
     is_asc?: boolean
     searchBy?: 'title' | 'content'
     keyword?: string
   }) => {
-    const response = await api.get<NoteListResponse>('/notes', { params })
+    const response = await api.get<NoteListResponse>('/notes', {
+      params: {
+        page: params?.page,
+        size: params?.size,
+        sort: params?.sort,
+        isAsc: true,
+        searchBy: params?.searchBy,
+        keyword: params?.keyword,
+      },
+    })
     const results = Array.isArray(response.data) ? response.data : response.data.results ?? []
     return {
       ...(Array.isArray(response.data) ? {} : response.data),

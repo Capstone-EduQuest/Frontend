@@ -24,7 +24,7 @@ const isLoading = ref(true)
 
 const loadStages = async () => {
   try {
-    const response = await stageAPI.getStageList({ page: 1, size: 100, sort: 'number', is_asc: true })
+    const response = await stageAPI.getStageList({ page: 0, size: 100, sort: 'number', is_asc: true })
     stages.value = response.results
   } catch (error) {
     console.error('스테이지 목록을 불러오지 못했습니다.', error)

@@ -29,6 +29,23 @@ interface HintForm {
   content: string
 }
 
+const problemTypeOptions = [
+  { label: 'basic', value: 'basic' },
+  { label: 'code', value: 'code' },
+] as const
+
+const defaultHintForms = (): HintForm[] => [
+  { level: 1, point: 10, content: '' },
+  { level: 2, point: 20, content: '' },
+  { level: 3, point: 30, content: '' },
+]
+
+const defaultBlockAnswer = '1,2,3,4'
+const defaultBlockItems = `1: print(
+2: "Hello"
+3: )
+4: `
+
 const router = useRouter()
 const auth = useAuthStore()
 
@@ -57,18 +74,14 @@ const stageMessage = ref('')
 const stageError = ref('')
 
 const problemStageUuid = ref('')
-const problemType = ref('code')
+const problemType = ref<(typeof problemTypeOptions)[number]['value']>('basic')
 const problemNumber = ref<number | null>(null)
 const problemSummary = ref('')
 const problemExample = ref('')
 const problemExpectedOutput = ref('')
-const blockAnswerInput = ref('1,2,3')
-const blockItemsInput = ref('1: print("Hello")\n2: if x > 0:\n3: return x')
-const hintForms = ref<HintForm[]>([
-  { level: 1, point: 5, content: '' },
-  { level: 2, point: 10, content: '' },
-  { level: 3, point: 15, content: '' },
-])
+const blockAnswerInput = ref(defaultBlockAnswer)
+const blockItemsInput = ref(defaultBlockItems)
+const hintForms = ref<HintForm[]>(defaultHintForms())
 const isProblemLoading = ref(false)
 const problemMessage = ref('')
 const problemError = ref('')
@@ -195,18 +208,14 @@ const resetStageForm = () => {
 
 const resetProblemForm = () => {
   problemStageUuid.value = stages.value[0]?.uuid ?? ''
-  problemType.value = 'code'
+  problemType.value = 'basic'
   problemNumber.value = null
   problemSummary.value = ''
   problemExample.value = ''
   problemExpectedOutput.value = ''
-  blockAnswerInput.value = '1,2,3'
-  blockItemsInput.value = '1: print("Hello")\n2: if x > 0:\n3: return x'
-  hintForms.value = [
-    { level: 1, point: 5, content: '' },
-    { level: 2, point: 10, content: '' },
-    { level: 3, point: 15, content: '' },
-  ]
+  blockAnswerInput.value = defaultBlockAnswer
+  blockItemsInput.value = defaultBlockItems
+  hintForms.value = defaultHintForms()
 }
 
 const resetNoticeForm = () => {
@@ -242,7 +251,7 @@ const parseBlockPayload = () => {
 const loadUsers = async () => {
   const [userListResponse, rolesResponse] = await Promise.all([
     userAPI.getUserList({
-      page: 1,
+      page: 0,
       size: 100,
       sort: 'created_at',
       is_asc: false,
@@ -256,7 +265,7 @@ const loadUsers = async () => {
 
 const loadStages = async () => {
   const response = await stageAPI.getStageList({
-    page: 1,
+    page: 0,
     size: 100,
     sort: 'number',
     is_asc: true,
@@ -271,7 +280,7 @@ const loadStages = async () => {
 
 const loadProblems = async () => {
   const response = await problemAPI.getProblemList({
-    page: 1,
+    page: 0,
     size: 200,
     sort: 'number',
     is_asc: true,
@@ -282,7 +291,7 @@ const loadProblems = async () => {
 
 const loadNotices = async () => {
   const response = await noteAPI.getNoteList({
-    page: 1,
+    page: 0,
     size: 100,
     sort: 'created_at',
     is_asc: false,
@@ -905,7 +914,9 @@ onMounted(async () => {
                   </div>
                   <div>
                     <label class="mb-2 block text-sm font-medium text-[#1A2A4F]">문제 타입</label>
-                    <input v-model="problemType" type="text" class="luxe-input w-full rounded-[18px] px-4 py-3 text-[#1A2A4F]">
+                    <select v-model="problemType" class="luxe-input w-full rounded-[18px] px-4 py-3 text-[#1A2A4F]">
+                      <option v-for="option in problemTypeOptions" :key="option.value" :value="option.value">{{ option.label }}</option>
+                    </select>
                   </div>
                   <div>
                     <label class="mb-2 block text-sm font-medium text-[#1A2A4F]">문제 번호</label>
@@ -915,28 +926,28 @@ onMounted(async () => {
 
                 <div>
                   <label class="mb-2 block text-sm font-medium text-[#1A2A4F]">문제 요약</label>
-                  <input v-model="problemSummary" type="text" class="luxe-input w-full rounded-[18px] px-4 py-3 text-[#1A2A4F]">
+                  <input v-model="problemSummary" type="text" placeholder="예: Hello 출력하기" class="luxe-input w-full rounded-[18px] px-4 py-3 text-[#1A2A4F]">
                 </div>
 
                 <div class="grid gap-4 lg:grid-cols-2">
                   <div>
                     <label class="mb-2 block text-sm font-medium text-[#1A2A4F]">예시 입력</label>
-                    <textarea v-model="problemExample" rows="5" class="luxe-input w-full rounded-[18px] px-4 py-3 text-[#1A2A4F]" />
+                    <textarea v-model="problemExample" rows="5" placeholder="예: 입력 예시가 없으면 비워둘 수 있습니다." class="luxe-input w-full rounded-[18px] px-4 py-3 text-[#1A2A4F]" />
                   </div>
                   <div>
                     <label class="mb-2 block text-sm font-medium text-[#1A2A4F]">예상 출력</label>
-                    <textarea v-model="problemExpectedOutput" rows="5" class="luxe-input w-full rounded-[18px] px-4 py-3 text-[#1A2A4F]" />
+                    <textarea v-model="problemExpectedOutput" rows="5" placeholder="예: Hello" class="luxe-input w-full rounded-[18px] px-4 py-3 text-[#1A2A4F]" />
                   </div>
                 </div>
 
                 <div class="grid gap-4 lg:grid-cols-2">
                   <div>
                     <label class="mb-2 block text-sm font-medium text-[#1A2A4F]">블록 정답 순서</label>
-                    <input v-model="blockAnswerInput" type="text" class="luxe-input w-full rounded-[18px] px-4 py-3 text-[#1A2A4F]">
+                    <input v-model="blockAnswerInput" type="text" placeholder="예: 1,2,3,4" class="luxe-input w-full rounded-[18px] px-4 py-3 text-[#1A2A4F]">
                   </div>
                   <div>
                     <label class="mb-2 block text-sm font-medium text-[#1A2A4F]">블록 코드 목록</label>
-                    <textarea v-model="blockItemsInput" rows="5" class="luxe-input w-full rounded-[18px] px-4 py-3 text-[#1A2A4F]" />
+                    <textarea v-model="blockItemsInput" rows="5" placeholder="한 줄에 하나씩, `순서: 코드` 형태로 입력" class="luxe-input w-full rounded-[18px] px-4 py-3 text-[#1A2A4F]" />
                   </div>
                 </div>
 

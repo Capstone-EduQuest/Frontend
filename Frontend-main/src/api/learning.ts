@@ -67,6 +67,12 @@ export interface ProgressResponse {
   }[]
 }
 
+type StagePayload = {
+  title: string
+  number: number
+  reward: number
+}
+
 type MaybePagedResponse<T> =
   | PagedResponse<T>
   | T[]
@@ -84,6 +90,30 @@ const normalizePagedResponse = <T>(data: MaybePagedResponse<T>) => {
   }
 }
 
+const normalizeStagePayload = (data: StagePayload) => {
+  const title = data.title.trim()
+  const number = Number(data.number)
+  const reward = Number(data.reward)
+
+  if (!title) {
+    throw new Error('스테이지 제목을 입력해 주세요.')
+  }
+
+  if (!Number.isFinite(number) || number < 1) {
+    throw new Error('스테이지 번호는 1 이상의 숫자여야 합니다.')
+  }
+
+  if (!Number.isFinite(reward) || reward < 0) {
+    throw new Error('보상 코인은 0 이상의 숫자여야 합니다.')
+  }
+
+  return {
+    title,
+    number: Math.trunc(number),
+    reward: Math.trunc(reward),
+  }
+}
+
 export const stageAPI = {
   getStageList: async (params?: { page?: number; size?: number; sort?: string; is_asc?: boolean }) => {
     const response = await api.get<MaybePagedResponse<Stage>>('/stages', { params })
@@ -93,12 +123,12 @@ export const stageAPI = {
     const response = await api.get<Stage>(`/stages/${uuid}`)
     return response.data
   },
-  createStage: async (data: { title: string; number: number; reward: number }) => {
-    const response = await api.post<Stage>('/stages', data)
+  createStage: async (data: StagePayload) => {
+    const response = await api.post<Stage>('/stages', normalizeStagePayload(data))
     return response.data
   },
-  updateStage: async (uuid: string, data: { title: string; number: number; reward: number }) => {
-    await api.put(`/stages/${uuid}`, data)
+  updateStage: async (uuid: string, data: StagePayload) => {
+    await api.put(`/stages/${uuid}`, normalizeStagePayload(data))
   },
   deleteStage: async (uuid: string) => {
     await api.delete(`/stages/${uuid}`)
